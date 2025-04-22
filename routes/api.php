@@ -18,7 +18,7 @@ use App\Rest\Controllers\RoomController;
 
 // Transport Module Controllers
 use App\Rest\Controllers\AgencyController;
-use App\Rest\Controllers\RouteController as TransportRouteController;
+use App\Rest\Controllers\TransportRouteController;
 use App\Rest\Controllers\SeatTypeController;
 use App\Rest\Controllers\BusController;
 use App\Rest\Controllers\JourneyController;
