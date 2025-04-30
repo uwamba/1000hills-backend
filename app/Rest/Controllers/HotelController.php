@@ -22,6 +22,10 @@ class HotelController extends RestController
             'description' => 'nullable|string',
             'stars' => 'nullable|integer|min:1|max:5',
             'working_time' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:255',        // New field
+            'updated_by' => 'nullable|integer|exists:users,id',  // New field
+            'deleted_by' => 'nullable|integer|exists:users,id',  // New field
+            'deleted_on' => 'nullable|date',                // New field
         ]);
 
         $hotel = Hotel::create($validated);
@@ -30,7 +34,7 @@ class HotelController extends RestController
 
     public function show(Hotel $hotel)
     {
-        return $hotel;
+        return response()->json($hotel);
     }
 
     public function update(Request $request, Hotel $hotel)
@@ -42,13 +46,17 @@ class HotelController extends RestController
             'description' => 'nullable|string',
             'stars' => 'nullable|integer|min:1|max:5',
             'working_time' => 'nullable|string|max:255',
+            'status' => 'nullable|string|max:255',        // New field
+            'updated_by' => 'nullable|integer|exists:users,id',  // New field
+            'deleted_by' => 'nullable|integer|exists:users,id',  // New field
+            'deleted_on' => 'nullable|date',                // New field
         ]);
 
         $hotel->update($validated);
         return response()->json($hotel);
     }
 
-    public function destroy( $hotel)
+    public function destroy($hotel)
     {
         $hotel->delete();
         return response()->json(null, 204);

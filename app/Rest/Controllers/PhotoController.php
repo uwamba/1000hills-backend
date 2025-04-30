@@ -22,6 +22,10 @@ class PhotoController extends RestController
             'path' => 'required|string|max:255',
             'object_type' => 'required|string|max:255',
             'object_id' => 'required|integer',
+            'status' => 'nullable|string',           // New field validation
+            'updated_by' => 'nullable|integer',      // New field validation
+            'deleted_by' => 'nullable|integer',      // New field validation
+            'deleted_on' => 'nullable|date',         // New field validation
         ]);
 
         $photo = Photo::create($validated);
@@ -40,6 +44,10 @@ class PhotoController extends RestController
             'path' => 'sometimes|required|string|max:255',
             'object_type' => 'sometimes|required|string|max:255',
             'object_id' => 'sometimes|required|integer',
+            'status' => 'nullable|string',           // New field validation
+            'updated_by' => 'nullable|integer',      // New field validation
+            'deleted_by' => 'nullable|integer',      // New field validation
+            'deleted_on' => 'nullable|date',         // New field validation
         ]);
 
         $photo->update($validated);

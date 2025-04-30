@@ -15,6 +15,10 @@ class BusResource extends JsonResource
             'seat_type' => $this->seat_type,
             'number_of_seat' => $this->number_of_seat,
             'agency_id' => $this->agency_id,
+            'status' => $this->status,
+            'updated_by' => $this->updated_by,
+            'deleted_by' => $this->deleted_by,
+            'deleted_on' => $this->deleted_on,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

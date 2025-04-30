@@ -9,7 +9,16 @@ class Booking extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['from_date_time', 'to_date_time', 'object_type', 'object_id', 'client_id', 'amount_to_pay'];
+    protected $fillable = [   'from_date_time',
+    'to_date_time',
+    'object_type',
+    'object_id',
+    'client_id',
+    'amount_to_pay',
+    'status',        // New field
+    'updated_by',    // New field
+    'deleted_by',    // New field
+    'deleted_on',];
 
     public function client()
     {

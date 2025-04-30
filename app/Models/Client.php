@@ -9,7 +9,18 @@ class Client extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['names', 'email', 'password', 'address', 'country', 'phone'];
+    protected $fillable = [
+        'names',
+        'email',
+        'password',
+        'address',
+        'country',
+        'phone',
+        'status',       // New field
+        'updated_by',   // New field
+        'deleted_by',   // New field
+        'deleted_on',   // New field
+    ];
 
     public function payments()
     {

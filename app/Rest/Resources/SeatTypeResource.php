@@ -17,6 +17,10 @@ class SeatTypeResource extends JsonResource
             'seat_row' => $this->seat_row,
             'seat_column' => $this->seat_column,
             'exclude' => $this->exclude,
+            'status' => $this->status,           // New field
+            'updated_by' => $this->updated_by,   // New field
+            'deleted_by' => $this->deleted_by,   // New field
+            'deleted_on' => $this->deleted_on,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

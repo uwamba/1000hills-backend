@@ -14,6 +14,10 @@ class Bus extends Model
         'seat_type',
         'number_of_seat',
         'agency_id',
+        'status',        // New field
+        'updated_by',    // New field
+        'deleted_by',    // New field
+        'deleted_on',
     ];
 
     /**

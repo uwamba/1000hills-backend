@@ -21,6 +21,10 @@ class HotelResource extends RestResource
             'description',
             'stars',
             'working_time',
+            'status',        // New field
+            'updated_by',    // New field
+            'deleted_by',    // New field
+            'deleted_on',    // New field
         ];
     }
 

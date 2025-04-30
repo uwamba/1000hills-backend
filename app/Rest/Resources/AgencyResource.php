@@ -14,6 +14,10 @@ class AgencyResource extends JsonResource
             'name' => $this->name,
             'address' => $this->address,
             'description' => $this->description,
+            'status' => $this->status,
+            'updated_by' => $this->updated_by,
+            'deleted_by' => $this->deleted_by,
+            'deleted_on' => $this->deleted_on,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

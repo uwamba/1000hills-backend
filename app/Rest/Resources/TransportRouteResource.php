@@ -15,6 +15,10 @@ class TransportRouteResource extends JsonResource
             'from' => $this->from,
             'to' => $this->to,
             'price' => $this->price,
+            'status' => $this->status,           // New field
+            'updated_by' => $this->updated_by,   // New field
+            'deleted_by' => $this->deleted_by,   // New field
+            'deleted_on' => $this->deleted_on,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

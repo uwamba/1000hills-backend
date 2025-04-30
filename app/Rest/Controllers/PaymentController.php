@@ -11,8 +11,7 @@ class PaymentController extends RestController
 {
     public function index()
     {
-        $payments = Payment::all();
-        return PaymentResource::collection($payments);
+        return PaymentResource::collection(Payment::all());
     }
 
     public function store(Request $request)
@@ -22,11 +21,15 @@ class PaymentController extends RestController
             'transaction_id' => 'required|string|max:255',
             'amount_paid' => 'required|numeric',
             'account' => 'required|string|max:255',
-            'type' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'type' => 'required|string|max:100',
+            'status' => 'nullable|string|max:100',      // New field
+            'updated_by' => 'nullable|integer',         // New field
+            'deleted_by' => 'nullable|integer',         // New field
+            'deleted_on' => 'nullable|date',            // New field
         ]);
 
         $payment = Payment::create($validated);
+
         return new PaymentResource($payment);
     }
 
@@ -42,11 +45,15 @@ class PaymentController extends RestController
             'transaction_id' => 'sometimes|required|string|max:255',
             'amount_paid' => 'sometimes|required|numeric',
             'account' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|string|max:50',
-            'status' => 'sometimes|required|string|max:50',
+            'type' => 'sometimes|required|string|max:100',
+            'status' => 'nullable|string|max:100',      // New field
+            'updated_by' => 'nullable|integer',         // New field
+            'deleted_by' => 'nullable|integer',         // New field
+            'deleted_on' => 'nullable|date',            // New field
         ]);
 
         $payment->update($validated);
+
         return new PaymentResource($payment);
     }
 

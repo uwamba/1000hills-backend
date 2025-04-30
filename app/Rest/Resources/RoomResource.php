@@ -41,7 +41,11 @@ class RoomResource extends RestResource
             'currency',
             'number_of_people',
             'has_ac',
-            'hotel_id', // Assuming we want to expose the hotel_id
+            'hotel_id',
+            'status',        // Newly added
+            'updated_by',    // Newly added
+            'deleted_by',    // Newly added
+            'deleted_on',    // Newly added
         ];
     }
 
@@ -101,5 +105,4 @@ class RoomResource extends RestResource
     {
         return [];
     }
-    
 }

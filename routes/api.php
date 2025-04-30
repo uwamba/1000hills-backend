@@ -35,6 +35,7 @@ Route::apiResource('accounts', AccountController::class);
 Route::apiResource('bookings', BookingController::class);
 Route::apiResource('clients', ClientController::class);
 
+
 // Hotels
 Route::apiResource('hotels', HotelController::class);
 Route::apiResource('rooms', RoomController::class);

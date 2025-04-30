@@ -21,6 +21,10 @@ class Hotel extends Model
         'description',
         'stars',
         'working_time',
+        'status',        // New field
+        'updated_by',    // New field
+        'deleted_by',    // New field
+        'deleted_on',
     ];
 
     // Cast the coordinate field to an array or object (if needed)

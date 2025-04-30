@@ -16,6 +16,10 @@ class BookingResource extends JsonResource
             'object_id' => $this->object_id,
             'client_id' => $this->client_id,
             'amount_to_pay' => $this->amount_to_pay,
+            'status' => $this->status,             // New field
+            'updated_by' => $this->updated_by,     // New field
+            'deleted_by' => $this->deleted_by,     // New field
+            'deleted_on' => $this->deleted_on,     // New field
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -23,21 +23,33 @@ class Room extends Model
         'currency',
         'number_of_people',
         'has_ac',
-        'hotel_id',
+        'hotel_id', 'status',        // New field
+        'updated_by',    // New field
+        'deleted_by',    // New field
+        'deleted_on',    // New field
     ];
 
-    // Cast the price to float and other necessary types
     protected $casts = [
         'price' => 'float',
         'has_wireless' => 'boolean',
         'has_bathroom' => 'boolean',
         'has_ac' => 'boolean',
+        'deleted_on' => 'datetime',  // Cast deleted_on to datetime
     ];
 
-    // Optionally, you can define relationships here if needed
-    // Example: room belongs to a hotel
     public function hotel()
     {
         return $this->belongsTo(Hotel::class);
+    }
+
+    // (Optional) Relationships to users for updated_by and deleted_by
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }

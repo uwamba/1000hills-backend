@@ -5,6 +5,8 @@ namespace App\Rest\Controllers;
 use App\Rest\Controller as RestController;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class RoomController extends RestController
 {
@@ -26,7 +28,11 @@ class RoomController extends RestController
             'number_of_people' => 'required|integer',
             'has_ac' => 'required|boolean',
             'hotel_id' => 'sometimes|required|exists:hotels,id',
+            'status' => 'sometimes|string|max:50', // Optional status field
         ]);
+
+        // Automatically set updated_by
+        $validated['updated_by'] = Auth::id();
 
         $room = Room::create($validated);
         return response()->json($room, 201);
@@ -50,7 +56,11 @@ class RoomController extends RestController
             'number_of_people' => 'sometimes|required|integer',
             'has_ac' => 'sometimes|required|boolean',
             'hotel_id' => 'sometimes|required|exists:hotels,id',
+            'status' => 'sometimes|string|max:50', // Optional status update
         ]);
+
+        // Track who updated
+        $validated['updated_by'] = Auth::id();
 
         $room->update($validated);
         return response()->json($room);
@@ -58,6 +68,12 @@ class RoomController extends RestController
 
     public function destroy($room)
     {
+        // Soft-delete related tracking fields
+        $room->update([
+            'deleted_by' => Auth::id(),
+            'deleted_on' => Carbon::now(),
+        ]);
+
         $room->delete();
         return response()->json(null, 204);
     }

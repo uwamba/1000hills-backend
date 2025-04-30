@@ -21,6 +21,10 @@ class TransportRouteController extends RestController
             'from' => 'required|string|max:255',
             'to' => 'required|string|max:255',
             'price' => 'required|numeric',
+            'status' => 'nullable|string|max:255',
+            'updated_by' => 'nullable|integer|exists:users,id',
+            'deleted_by' => 'nullable|integer|exists:users,id',
+            'deleted_on' => 'nullable|date',
         ]);
 
         $route = TransportRoute::create($validated);
@@ -40,6 +44,10 @@ class TransportRouteController extends RestController
             'from' => 'sometimes|required|string|max:255',
             'to' => 'sometimes|required|string|max:255',
             'price' => 'sometimes|required|numeric',
+            'status' => 'sometimes|nullable|string|max:255',
+            'updated_by' => 'sometimes|nullable|integer|exists:users,id',
+            'deleted_by' => 'sometimes|nullable|integer|exists:users,id',
+            'deleted_on' => 'sometimes|nullable|date',
         ]);
 
         $route->update($validated);
@@ -47,7 +55,7 @@ class TransportRouteController extends RestController
         return new TransportRouteResource($route);
     }
 
-    public function destroy( $route)
+    public function destroy($route)
     {
         $route->delete();
         return response()->json(null, 204);

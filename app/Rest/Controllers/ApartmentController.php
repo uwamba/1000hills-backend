@@ -8,6 +8,7 @@ use App\Rest\Controller as RestController;
 use App\Models\Apartment;
 use App\Rest\Resources\ApartmentResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ApartmentController extends RestController
 {
@@ -28,7 +29,11 @@ class ApartmentController extends RestController
             'coordinate' => 'nullable|string',
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
+            'status' => 'nullable|string|in:active,inactive', // new field
         ]);
+
+        $validated['status'] = $validated['status'] ?? 'active';
+        $validated['updated_by'] = Auth::id(); // track creator as updater
 
         $apartment = Apartment::create($validated);
 
@@ -52,16 +57,15 @@ class ApartmentController extends RestController
             'coordinate' => 'nullable|string',
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
+            'status' => 'nullable|string|in:active,inactive', // new field
         ]);
+
+        $validated['updated_by'] = Auth::id(); // track who updated
 
         $apartment->update($validated);
 
         return new ApartmentResource($apartment);
     }
 
-    public function destroy( $apartment)
-    {
-        $apartment->delete();
-        return response()->json(null, 204);
-    }
+    
 }

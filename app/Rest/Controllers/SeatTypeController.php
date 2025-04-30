@@ -6,6 +6,7 @@ use App\Rest\Controller as RestController;
 use App\Models\SeatType;
 use App\Rest\Resources\SeatTypeResource;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SeatTypeController extends RestController
 {
@@ -23,8 +24,10 @@ class SeatTypeController extends RestController
             'seat_row' => 'required|integer',
             'seat_column' => 'required|integer',
             'exclude' => 'nullable|json',
+            'status' => 'nullable|string|max:50',
         ]);
 
+        $validated['updated_by'] = Auth::id(); // Set current user
         $seatType = SeatType::create($validated);
 
         return new SeatTypeResource($seatType);
@@ -44,16 +47,24 @@ class SeatTypeController extends RestController
             'seat_row' => 'sometimes|required|integer',
             'seat_column' => 'sometimes|required|integer',
             'exclude' => 'sometimes|nullable|json',
+            'status' => 'sometimes|nullable|string|max:50',
         ]);
 
+        $validated['updated_by'] = Auth::id(); // Track who updated
         $seatType->update($validated);
 
         return new SeatTypeResource($seatType);
     }
 
-    public function destroy( $seatType)
+    public function destroy($seatType)
     {
+        $seatType->update([
+            'deleted_by' => Auth::id(),
+            'deleted_on' => now(),
+        ]);
+
         $seatType->delete();
+
         return response()->json(null, 204);
     }
 }

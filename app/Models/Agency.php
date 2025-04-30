@@ -17,5 +17,21 @@ class Agency extends Model
         'name',
         'address',
         'description',
+        'status',
+        'updated_by',
+        'deleted_by',
+        'deleted_on',
     ];
+    // App\Models\Agency.php
+
+public function updatedBy()
+{
+    return $this->belongsTo(\App\Models\User::class, 'updated_by');
+}
+
+public function deletedBy()
+{
+    return $this->belongsTo(\App\Models\User::class, 'deleted_by');
+}
+
 }
