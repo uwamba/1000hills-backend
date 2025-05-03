@@ -27,8 +27,6 @@ class Hotel extends Model
         'deleted_on',
     ];
 
-    
-
     // Cast the coordinate field to an array or object (if needed)
     protected $casts = [
         'coordinate' => 'array', // Assuming it stores lat/long as JSON
