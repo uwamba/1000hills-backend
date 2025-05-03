@@ -20,6 +20,7 @@ class Client extends Model
         'updated_by',   // New field
         'deleted_by',   // New field
         'deleted_on',   // New field
+        
     ];
 
     public function payments()
