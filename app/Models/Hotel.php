@@ -38,4 +38,11 @@ class Hotel extends Model
     {
         return $this->hasMany(Room::class);
     }
+
+    public function photos()
+{
+    return $this->hasMany(Photo::class, 'object_id')
+        ->where('object_type', 'hotel');
+}
+
 }

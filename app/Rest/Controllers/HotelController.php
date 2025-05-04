@@ -5,13 +5,28 @@ namespace App\Rest\Controllers;
 use App\Rest\Controller as RestController;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
+use App\Models\Photo;
 
 class HotelController extends RestController
 {
     public function index()
-    {
-        return Hotel::all();
-    }
+{
+    $perPage = 10; // You can change this to any number or get it from query params
+    $hotels = Hotel::with('photos')->paginate($perPage);
+
+    return response()->json($hotels, 200);
+}
+
+
+public function getAllHotelNames()
+{
+    $hotels = Hotel::select('id', 'name')->get();
+
+    return response()->json($hotels);
+}
+
+
+
 
     public function store(Request $request)
     {
@@ -29,6 +44,20 @@ class HotelController extends RestController
         ]);
 
         $hotel = Hotel::create($validated);
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+               $path = $photo->store('photos/hotels', 'public');
+
+    
+               Photo::create([
+                    'name' => $photo->getClientOriginalName(),
+                    'path' => $path,
+                    'status' => 'active',
+                    'object_type' => 'hotel',
+                    'object_id' => $hotel->id,
+                ]);
+            }
+        }
         return response()->json($hotel, 201);
     }
 

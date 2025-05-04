@@ -4,15 +4,20 @@ namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
 use App\Models\Room;
+use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class RoomController extends RestController
 {
+   
     public function index()
     {
-        return Room::all();
+        $perPage = 10; // You can change this to any number or get it from query params
+        $hotels = Room::with('photos')->paginate($perPage);
+    
+        return response()->json($hotels, 200);
     }
 
     public function store(Request $request)
@@ -27,21 +32,45 @@ class RoomController extends RestController
             'currency' => 'required|string|max:10',
             'number_of_people' => 'required|integer',
             'has_ac' => 'required|boolean',
-            'hotel_id' => 'sometimes|required|exists:hotels,id',
+            'hotel_id' => 'required',
             'status' => 'sometimes|string|max:50', // Optional status field
         ]);
 
         // Automatically set updated_by
-        $validated['updated_by'] = Auth::id();
 
         $room = Room::create($validated);
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('photos/rooms', 'public');
+        
+                Photo::create([
+                    'name' => $photo->getClientOriginalName(),
+                    'path' => $path,
+                    'status' => 'active',
+                    'object_type' => 'room',
+                    'object_id' => $room->id,
+                ]);
+            }
+        }
         return response()->json($room, 201);
     }
 
-    public function show(Room $room)
-    {
-        return $room;
-    }
+    public function show($id)
+{
+    $room = Room::with('photos', 'hotel', 'updatedBy', 'deletedBy') // Ensure necessary relationships are loaded
+        ->findOrFail($id);
+
+    // Fetch similar rooms based on type or hotel_id
+    $similarRooms = Room::where('id', '!=', $id) // Exclude the current room
+        ->limit(6) // Limit the number of similar rooms
+        ->get();
+
+    return response()->json([
+        'room' => $room,
+        'similarRooms' => $similarRooms
+    ]);
+}
+
 
     public function update(Request $request, Room $room)
     {

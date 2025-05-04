@@ -11,6 +11,7 @@ use App\Rest\Controllers\PaymentController;
 use App\Rest\Controllers\AccountController;
 use App\Rest\Controllers\BookingController;
 use App\Rest\Controllers\ClientController;
+use App\Rest\Controllers\BusTicketController;
 
 // Hotel Module Controllers
 use App\Rest\Controllers\HotelController;
@@ -20,7 +21,6 @@ use App\Rest\Controllers\RoomController;
 use App\Rest\Controllers\AgencyController;
 use App\Rest\Controllers\TransportRouteController;
 use App\Rest\Controllers\SeatTypeController;
-use App\Rest\Controllers\BusController;
 use App\Rest\Controllers\JourneyController;
 
 // Apartment Module Controller
@@ -37,14 +37,16 @@ Route::apiResource('clients', ClientController::class);
 
 
 // Hotels
+Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
 Route::apiResource('hotels', HotelController::class);
+
 Route::apiResource('rooms', RoomController::class);
 
 // Transport
 Route::apiResource('agencies', AgencyController::class);
 Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
 Route::apiResource('seat-types', SeatTypeController::class);
-Route::apiResource('buses', BusController::class);
+Route::apiResource('buses', BusTicketController::class);
 Route::apiResource('journeys', JourneyController::class);
 
 // Apartments

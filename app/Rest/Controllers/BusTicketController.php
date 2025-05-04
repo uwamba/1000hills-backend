@@ -1,7 +1,5 @@
-
 <?php
-
-
+namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
 use App\Models\Bus;
@@ -10,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class BusController extends RestController
+class BusTicketController extends RestController
 {
     public function index()
     {

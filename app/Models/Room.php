@@ -23,7 +23,8 @@ class Room extends Model
         'currency',
         'number_of_people',
         'has_ac',
-        'hotel_id', 'status',        // New field
+        'hotel_id',
+        'status',        // New field
         'updated_by',    // New field
         'deleted_by',    // New field
         'deleted_on',    // New field
@@ -52,4 +53,9 @@ class Room extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+    public function photos()
+{
+    return $this->hasMany(Photo::class, 'object_id')
+        ->where('object_type', 'room');
+}
 }
