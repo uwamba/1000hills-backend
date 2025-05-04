@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('buses', function (Blueprint $table) {
-            $table->id();
+            $table->integer('id');
             $table->string('name');
-            $table->foreignId('seat_type_id')->constrained('seat_types')->onDelete('cascade');
+            $table->unsignedBigInteger('seat_type_id'); // No foreign key constraint
             $table->integer('number_of_seat');
-            $table->foreignId('agency_id')->constrained('agencies')->onDelete('cascade');
+            $table->unsignedBigInteger('agency_id');
             $table->timestamps();
         });
     }
