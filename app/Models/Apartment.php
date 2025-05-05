@@ -1,7 +1,5 @@
 <?php
 
-// app/Models/Apartment.php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -18,11 +16,18 @@ class Apartment extends Model
         'coordinate',
         'annexes',
         'description',
-        'status',           // New field
-        'updated_by',       // New field
-        'deleted_by',       // New field
+        'status',
+        'updated_by',
+        'deleted_by',
         'deleted_on',
     ];
+
+    protected $casts = [
+        'coordinate' => 'array', // assuming JSON format
+        'kitchen_inside' => 'boolean',
+        'kitchen_outside' => 'boolean',
+    ];
+
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
@@ -31,5 +36,11 @@ class Apartment extends Model
     public function deletedBy()
     {
         return $this->belongsTo(User::class, 'deleted_by');
+    }
+
+    public function photos()
+    {
+        return $this->hasMany(Photo::class, 'object_id')
+                    ->where('object_type', 'apartment');
     }
 }

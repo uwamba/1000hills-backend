@@ -1,11 +1,10 @@
 <?php
 
-// app/Http/Controllers/Api/V1/ApartmentController.php
-
 namespace App\Rest\Controllers;
 
 use App\Rest\Controller as RestController;
 use App\Models\Apartment;
+use App\Models\Photo;
 use App\Rest\Resources\ApartmentResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,7 +13,7 @@ class ApartmentController extends RestController
 {
     public function index()
     {
-        return ApartmentResource::collection(Apartment::all());
+        return ApartmentResource::collection(Apartment::with('photos')->get());
     }
 
     public function store(Request $request)
@@ -29,19 +28,35 @@ class ApartmentController extends RestController
             'coordinate' => 'nullable|string',
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
-            'status' => 'nullable|string|in:active,inactive', // new field
+            'status' => 'nullable|string|in:active,inactive',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'active';
-        $validated['updated_by'] = Auth::id(); // track creator as updater
+        $validated['updated_by'] = Auth::id();
 
         $apartment = Apartment::create($validated);
+
+        // Save photos
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('photos/apartments', 'public');
+
+                Photo::create([
+                    'name' => $photo->getClientOriginalName(),
+                    'path' => $path,
+                    'status' => 'active',
+                    'object_type' => 'apartment',
+                    'object_id' => $apartment->id,
+                ]);
+            }
+        }
 
         return new ApartmentResource($apartment);
     }
 
     public function show(Apartment $apartment)
     {
+        $apartment->load('photos');
         return new ApartmentResource($apartment);
     }
 
@@ -57,15 +72,27 @@ class ApartmentController extends RestController
             'coordinate' => 'nullable|string',
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
-            'status' => 'nullable|string|in:active,inactive', // new field
+            'status' => 'nullable|string|in:active,inactive',
         ]);
 
-        $validated['updated_by'] = Auth::id(); // track who updated
-
+        $validated['updated_by'] = Auth::id();
         $apartment->update($validated);
+
+        // Save new photos if present
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('photos/apartments', 'public');
+
+                Photo::create([
+                    'name' => $photo->getClientOriginalName(),
+                    'path' => $path,
+                    'status' => 'active',
+                    'object_type' => 'apartment',
+                    'object_id' => $apartment->id,
+                ]);
+            }
+        }
 
         return new ApartmentResource($apartment);
     }
-
-    
 }
