@@ -17,7 +17,12 @@ class AgencyController extends RestController
             Agency::whereNull('deleted_on')->get()
         );
     }
+    public function getAllAgencyNames()
+{
+    $agencies = Agency::select('id', 'name')->get();
 
+    return response()->json($agencies);
+}
     public function store(Request $request)
     {
         $validated = $request->validate([

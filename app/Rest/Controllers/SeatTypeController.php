@@ -14,7 +14,12 @@ class SeatTypeController extends RestController
     {
         return SeatTypeResource::collection(SeatType::all());
     }
-
+    public function getAllSeatTypeNames()
+    {
+        $seatTypes = SeatType::select('id', 'name')->get();
+    
+        return response()->json($seatTypes);
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([

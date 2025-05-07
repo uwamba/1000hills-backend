@@ -43,6 +43,8 @@ Route::apiResource('hotels', HotelController::class);
 Route::apiResource('rooms', RoomController::class);
 
 // Transport
+Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
+Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
 Route::apiResource('agencies', AgencyController::class);
 Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
 Route::apiResource('seat-types', SeatTypeController::class);
