@@ -3,24 +3,108 @@
 namespace App\Rest\Resources;
 
 use App\Models\Bus;
-use Illuminate\Http\Resources\Json\JsonResource;
+use App\Rest\Resource as RestResource;
+use Lomkit\Rest\Http\Requests\RestRequest;
+use App\Rest\Resources\AgencyResource;
+use App\Rest\Resources\SeatTypeResource;
 
-class BusResource extends JsonResource
+class BusResource extends RestResource
 {
-    public function toArray($request)
+    /**
+     * The model the resource corresponds to.
+     *
+     * @var class-string<\Illuminate\Database\Eloquent\Model>
+     */
+    public static $model = Bus::class;
+
+    /**
+     * The default pagination limit.
+     *
+     * @var int
+     */
+    public int $defaultLimit = 50;
+
+    /**
+     * The fields exposed in the resource.
+     *
+     * @param RestRequest $request
+     * @return array
+     */
+    public function fields(RestRequest $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'seat_type' => $this->seat_type,
-            'number_of_seat' => $this->number_of_seat,
-            'agency_id' => $this->agency_id,
-            'status' => $this->status,
-            'updated_by' => $this->updated_by,
-            'deleted_by' => $this->deleted_by,
-            'deleted_on' => $this->deleted_on,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'id',
+            'name',
+            'seat_type_id',
+            'number_of_seat',
+            'agency_id',
+            'status',        // Newly added
+            'updated_by',    // Newly added
+            'deleted_by',    // Newly added
+            'deleted_on',    // Newly added
+            'created_at',
+            'updated_at',
         ];
+    }
+
+    /**
+     * The relations exposed in the resource.
+     *
+     * @param RestRequest $request
+     * @return array
+     */
+    public function relations(RestRequest $request): array
+    {
+        return [
+            'agency' => [
+                'type' => 'relationship',
+                'resource' => AgencyResource::class,
+            ],
+            'seatType' => [
+                'type' => 'relationship',
+                'resource' => SeatTypeResource::class,
+            ],
+        ];
+    }
+
+    /**
+     * The pagination limits that can be used.
+     *
+     * @param RestRequest $request
+     * @return array
+     */
+    public function limits(RestRequest $request): array
+    {
+        return [
+            10,
+            25,
+            50,
+            100,
+            200,
+            500,
+            1000,
+        ];
+    }
+
+    /**
+     * The available actions.
+     *
+     * @param RestRequest $request
+     * @return array
+     */
+    public function actions(RestRequest $request): array
+    {
+        return [];
+    }
+
+    /**
+     * The available instructions.
+     *
+     * @param RestRequest $request
+     * @return array
+     */
+    public function instructions(RestRequest $request): array
+    {
+        return [];
     }
 }

@@ -11,17 +11,21 @@ class Bus extends Model
 
     protected $fillable = [
         'name',
-        'seat_type',
+        'seat_type_id',
         'number_of_seat',
         'agency_id',
-        'status',        // New field
-        'updated_by',    // New field
-        'deleted_by',    // New field
+        'status',
+        'updated_by',
+        'deleted_by',
         'deleted_on',
     ];
 
+    protected $casts = [
+        'deleted_on' => 'datetime',
+    ];
+
     /**
-     * Define relationship to the Agency
+     * Define relationship to the agency
      */
     public function agency()
     {
@@ -29,12 +33,26 @@ class Bus extends Model
     }
 
     /**
-     * Optional: Define relationship to seat type if it’s a separate model.
-     * Assuming 'seat_type' is a foreign key referencing seat_types table
+     * Define relationship to seat type
      */
     public function seatType()
     {
-        return $this->belongsTo(SeatType::class, 'seat_type');
+        return $this->belongsTo(SeatType::class, 'seat_type_id');
+    }
+
+    /**
+     * User who last updated this record
+     */
+    public function updatedBy()
+    {
+        return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /**
+     * User who deleted this record
+     */
+    public function deletedBy()
+    {
+        return $this->belongsTo(User::class, 'deleted_by');
     }
 }
-

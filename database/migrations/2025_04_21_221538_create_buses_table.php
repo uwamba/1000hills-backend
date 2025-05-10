@@ -12,11 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('buses', function (Blueprint $table) {
-            $table->integer('id');
+            $table->id(); // Corrected primary key
             $table->string('name');
-            $table->unsignedBigInteger('seat_type_id'); // No foreign key constraint
+            $table->foreignId('seat_type_id')->constrained()->onDelete('cascade');
             $table->integer('number_of_seat');
-            $table->unsignedBigInteger('agency_id');
+            $table->foreignId('agency_id')->constrained()->onDelete('cascade');
+            
+            // Audit fields
+            $table->unsignedBigInteger('updated_by')->nullable();
+            $table->unsignedBigInteger('deleted_by')->nullable();
+            $table->timestamp('deleted_on')->nullable();
+            
             $table->timestamps();
         });
     }
