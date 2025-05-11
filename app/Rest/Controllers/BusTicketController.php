@@ -7,6 +7,8 @@ use App\Models\Bus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+use App\Rest\Resources\BusResource;
 
 class BusTicketController extends RestController
 {
@@ -20,23 +22,44 @@ class BusTicketController extends RestController
         return response()->json($buses, 200);
     }
 
+ 
+    
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'seat_type_id' => 'required|exists:seat_types,id',
-            'number_of_seat' => 'required|integer',
-            'agency_id' => 'required|exists:agencies,id',
-            'status' => 'sometimes|string|max:50',
-        ]);
-
-        $validated['updated_by'] = Auth::id(); // Track who created/updated
-
-        $bus = Bus::create($validated);
-
-        return response()->json($bus, 201);
+        // Log the incoming request data for debugging
+        Log::debug('Incoming request data:', $request->all());
+    
+        // Validate the request data
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'seat_type_id' => 'required|exists:seat_types,id',
+                'number_of_seat' => 'required|integer',
+                'agency_id' => 'required|exists:agencies,id',
+                'status' => 'sometimes|string|max:50',
+            ]);
+            
+            // Log the validated data for further debugging
+            Log::debug('Validated data:', $validated);
+    
+            // Track who created/updated the bus
+            $validated['updated_by'] = Auth::id();
+            Log::debug('Updated by (user ID):', ['updated_by' => $validated['updated_by']]);
+    
+            // Create the bus record in the database
+            $bus = Bus::create($validated);
+    
+            // Log the created bus data
+            Log::debug('Created Bus:', $bus->toArray());
+    
+            return response()->json($bus, 201);
+        } catch (\Exception $e) {
+            // Log any exception that might occur
+            Log::error('Error during bus creation:', ['error' => $e->getMessage()]);
+            return response()->json(['error' => 'Something went wrong while creating the bus.'], 500);
+        }
     }
-
+    
     public function show($id)
     {
         $bus = Bus::with('agency', 'seatType')

@@ -7,6 +7,7 @@ use App\Models\SeatType;
 use App\Rest\Resources\SeatTypeResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class SeatTypeController extends RestController
 {
@@ -17,26 +18,47 @@ class SeatTypeController extends RestController
     public function getAllSeatTypeNames()
     {
         $seatTypes = SeatType::select('id', 'name')->get();
-    
+
         return response()->json($seatTypes);
     }
+
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'row' => 'required|integer',
-            'column' => 'required|integer',
-            'name' => 'required|string|max:255',
-            'seat_row' => 'required|integer',
-            'seat_column' => 'required|integer',
-            'exclude' => 'nullable|json',
-            'status' => 'nullable|string|max:50',
+        // Decode seat_layout and exclude if they are JSON strings
+        $seatLayout = is_string($request->seat_layout) ? json_decode($request->seat_layout, true) : $request->seat_layout;
+        $exclude = is_string($request->exclude) ? json_decode($request->exclude, true) : $request->exclude;
+
+        // Debug parsed data
+        Log::debug('Decoded seat_layout:', $seatLayout);
+        Log::debug('Decoded exclude:', $exclude);
+
+        // Now validate using the decoded arrays
+        $validated = validator([
+            'name' => $request->name,
+            'seat_layout' => $seatLayout,
+            'seat_layout.rows' => $seatLayout['row'] ?? null,
+            'seat_layout.columns' => $seatLayout['seats_per_row'] ?? null,
+            'exclude' => $exclude,
+        ])->validate();
+
+        // Save to database
+        $seatType = SeatType::create([
+            'name' => $request->name,
+            'row' => $seatLayout['row'],
+            'column' => $seatLayout['seats_per_row'],
+            'seat_row' => $seatLayout['row'],
+            'seat_column' => $seatLayout['seats_per_row'],
+            'exclude' => $exclude,
+
+
         ]);
 
-        $validated['updated_by'] = Auth::id(); // Set current user
-        $seatType = SeatType::create($validated);
+        Log::debug('Seat type saved:', $seatType->toArray());
 
-        return new SeatTypeResource($seatType);
+        return response()->json(['message' => 'Seat type created', 'data' => $seatType], 201);
     }
+
 
     public function show(SeatType $seatType)
     {

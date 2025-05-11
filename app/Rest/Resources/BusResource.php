@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Rest\Resources;
 
 use App\Models\Bus;
@@ -36,6 +35,7 @@ class BusResource extends RestResource
             'id',
             'name',
             'seat_type_id',
+            'seat_type',  // Added the seat_type here
             'number_of_seat',
             'agency_id',
             'status',        // Newly added

@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Rest\Resources\PaymentResource;
-
+use App\Jobs\ProcessPayment;
 class PaymentController extends RestController
 {
     public function index()
@@ -19,21 +19,28 @@ class PaymentController extends RestController
         return PaymentResource::collection($payments);
     }
 
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'client_id' => 'required|exists:clients,id',
-            'transaction_id' => 'required|string|max:255|unique:payments,transaction_id',
-            'amount_paid' => 'required|numeric',
-            'account' => 'required|string|max:255',
-            'type' => 'required|string|max:50',
-            'status' => 'sometimes|string|max:50', // Optional
-        ]);
+ 
 
-        $payment = Payment::create($validated);
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'client_id' => 'required|exists:clients,id',
+        'transaction_id' => 'required|string|max:255|unique:payments,transaction_id',
+        'amount_paid' => 'required|numeric',
+        'account' => 'required|string|max:255',
+        'type' => 'required|string|max:50',
+        'status' => 'sometimes|string|max:50',
+    ]);
 
-        return new PaymentResource($payment);
-    }
+    $validated['created_by'] = Auth::id();
+
+    ProcessPayment::dispatch($validated);
+
+    return response()->json([
+        'message' => 'Payment is being processed.',
+    ], 202);
+}
+
 
     public function show($id)
     {
