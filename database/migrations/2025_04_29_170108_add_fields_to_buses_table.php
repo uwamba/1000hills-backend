@@ -12,18 +12,39 @@ return new class extends Migration
     public function up()
     {
         Schema::table('buses', function (Blueprint $table) {
-            $table->string('status')->nullable();
-            $table->unsignedBigInteger('updated_by')->nullable();
-            $table->unsignedBigInteger('deleted_by')->nullable();
-            $table->timestamp('deleted_on')->nullable();
+            if (!Schema::hasColumn('buses', 'status')) {
+                $table->string('status')->nullable();
+            }
+            if (!Schema::hasColumn('buses', 'updated_by')) {
+                $table->unsignedBigInteger('updated_by')->nullable();
+            }
+            if (!Schema::hasColumn('buses', 'deleted_by')) {
+                $table->unsignedBigInteger('deleted_by')->nullable();
+            }
+            if (!Schema::hasColumn('buses', 'deleted_on')) {
+                $table->timestamp('deleted_on')->nullable();
+            }
         });
     }
-    
+
+    /**
+     * Reverse the migrations.
+     */
     public function down()
     {
         Schema::table('buses', function (Blueprint $table) {
-            $table->dropColumn(['status', 'updated_by', 'deleted_by', 'deleted_on']);
+            if (Schema::hasColumn('buses', 'status')) {
+                $table->dropColumn('status');
+            }
+            if (Schema::hasColumn('buses', 'updated_by')) {
+                $table->dropColumn('updated_by');
+            }
+            if (Schema::hasColumn('buses', 'deleted_by')) {
+                $table->dropColumn('deleted_by');
+            }
+            if (Schema::hasColumn('buses', 'deleted_on')) {
+                $table->dropColumn('deleted_on');
+            }
         });
     }
-    
 };

@@ -16,17 +16,19 @@ class JourneyController extends RestController
 
     public function store(Request $request)
     {
-        // Including new fields in validation
         $validated = $request->validate([
             'route_id' => 'required|exists:transport_routes,id',
-            'time' => 'required|date_format:H:i:s',
-            'status' => 'nullable|string',           // New field validation
-            'updated_by' => 'nullable|integer',      // New field validation
-            'deleted_by' => 'nullable|integer',      // New field validation
-            'deleted_on' => 'nullable|date',         // New field validation
+            'from' => 'required|string|max:255',
+            'to' => 'required|string|max:255',
+            'departure' => 'required|date',
+            'return' => 'nullable|date',
+            'bus_id' => 'required|exists:buses,id',
+            'status' => 'nullable|string',
+            'updated_by' => 'nullable|integer|exists:users,id',
+            'deleted_by' => 'nullable|integer|exists:users,id',
+            'deleted_on' => 'nullable|date',
         ]);
 
-        // Create the journey with the validated data, including the new fields
         $journey = Journey::create($validated);
 
         return new JourneyResource($journey);
@@ -39,17 +41,19 @@ class JourneyController extends RestController
 
     public function update(Request $request, Journey $journey)
     {
-        // Including new fields in validation
         $validated = $request->validate([
             'route_id' => 'sometimes|required|exists:transport_routes,id',
-            'time' => 'sometimes|required|date_format:H:i:s',
-            'status' => 'nullable|string',           // New field validation
-            'updated_by' => 'nullable|integer',      // New field validation
-            'deleted_by' => 'nullable|integer',      // New field validation
-            'deleted_on' => 'nullable|date',         // New field validation
+            'from' => 'sometimes|required|string|max:255',
+            'to' => 'sometimes|required|string|max:255',
+            'departure' => 'sometimes|required|date',
+            'return' => 'nullable|date',
+            'bus_id' => 'sometimes|required|exists:buses,id',
+            'status' => 'nullable|string',
+            'updated_by' => 'nullable|integer|exists:users,id',
+            'deleted_by' => 'nullable|integer|exists:users,id',
+            'deleted_on' => 'nullable|date',
         ]);
 
-        // Update the journey with the validated data, including the new fields
         $journey->update($validated);
 
         return new JourneyResource($journey);
@@ -57,7 +61,6 @@ class JourneyController extends RestController
 
     public function destroy($journey)
     {
-        // Mark the journey as deleted, if applicable
         $journey->delete();
         return response()->json(null, 204);
     }
