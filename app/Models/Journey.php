@@ -41,6 +41,7 @@ class Journey extends Model
     {
         return $this->belongsTo(Bus::class, 'bus_id');
     }
+    
 
     /**
      * User who last updated this record.

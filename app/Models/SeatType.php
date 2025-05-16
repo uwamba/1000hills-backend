@@ -25,4 +25,10 @@ class SeatType extends Model
     protected $casts = [
         'exclude' => 'array',
     ];
+
+    public function bus()
+{
+    return $this->belongsTo(Bus::class);
+}
+
 }

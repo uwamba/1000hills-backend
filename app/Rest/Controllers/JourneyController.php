@@ -11,7 +11,10 @@ class JourneyController extends RestController
 {
     public function index()
     {
-        return JourneyResource::collection(Journey::all());
+        return JourneyResource::collection(
+    Journey::with(['bus.agency', 'bus.seatType'])->get()
+);
+
     }
 
     public function store(Request $request)
