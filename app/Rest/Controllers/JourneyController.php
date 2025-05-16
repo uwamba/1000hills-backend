@@ -17,16 +17,12 @@ class JourneyController extends RestController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'route_id' => 'required|exists:transport_routes,id',
             'from' => 'required|string|max:255',
             'to' => 'required|string|max:255',
             'departure' => 'required|date',
             'return' => 'nullable|date',
             'bus_id' => 'required|exists:buses,id',
-            'status' => 'nullable|string',
-            'updated_by' => 'nullable|integer|exists:users,id',
-            'deleted_by' => 'nullable|integer|exists:users,id',
-            'deleted_on' => 'nullable|date',
+            'time' => 'required|date_format:H:i',
         ]);
 
         $journey = Journey::create($validated);

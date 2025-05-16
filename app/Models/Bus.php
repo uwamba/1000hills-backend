@@ -35,10 +35,12 @@ class Bus extends Model
     /**
      * Define relationship to seat type
      */
-    public function seatType()
-    {
-        return $this->belongsTo(SeatType::class, 'seat_type_id');
-    }
+    // In Bus.php
+public function seatType()
+{
+    return $this->belongsTo(SeatType::class, 'seat_type_id');
+}
+
 
     /**
      * User who last updated this record

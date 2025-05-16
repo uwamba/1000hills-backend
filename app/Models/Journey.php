@@ -17,6 +17,7 @@ class Journey extends Model
         'return',
         'bus_id',
         'status',
+        'time',
         'updated_by',
         'deleted_by',
         'deleted_on',
@@ -31,10 +32,7 @@ class Journey extends Model
     /**
      * Get the route associated with the journey.
      */
-    public function route()
-    {
-        return $this->belongsTo(TransportRoute::class, 'route_id');
-    }
+
 
     /**
      * Get the bus assigned to the journey.
@@ -51,6 +49,12 @@ class Journey extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+    // In Bus.php
+    public function agency()
+    {
+        return $this->belongsTo(Agency::class);
+    }
+
 
     /**
      * User who deleted this record.

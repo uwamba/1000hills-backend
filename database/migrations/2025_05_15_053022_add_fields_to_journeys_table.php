@@ -12,7 +12,7 @@ return new class extends Migration
    public function up()
 {
     Schema::table('journeys', function (Blueprint $table) {
-        $table->string('from')->after('route_id');
+        $table->string('from');
         $table->string('to')->after('from');
         $table->dateTime('departure')->after('to');
         $table->dateTime('return')->nullable()->after('departure');

@@ -22,9 +22,17 @@ use App\Rest\Controllers\AgencyController;
 use App\Rest\Controllers\TransportRouteController;
 use App\Rest\Controllers\SeatTypeController;
 use App\Rest\Controllers\JourneyController;
+use App\Rest\Controllers\OtpController;
+use App\Rest\Controllers\BookingController as TransportBookingController;
 
 // Apartment Module Controller
 use App\Rest\Controllers\ApartmentController;
+
+// otp verification
+Route::post('/send-otp', [OtpController::class, 'send']);
+Route::post('/verify-otp', [OtpController::class, 'verify']);
+Route::post('/bookings', [BookingController::class, 'store']);
+
 
 // Common
 Route::apiResource('admins', AdminController::class);

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('journeys', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('route_id')->constrained('transport_routes')->onDelete('cascade');
             $table->time('time');
             $table->timestamps();
         });
