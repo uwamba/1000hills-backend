@@ -58,9 +58,18 @@ class JourneyController extends RestController
         return new JourneyResource($journey);
     }
 
-    public function destroy($journey)
-    {
-        $journey->delete();
-        return response()->json(null, 204);
-    }
+   public function updateStatus(Request $request, $id) {
+    $journey = Journey::findOrFail($id);
+    $journey->status = $request->input('status');
+    $journey->save();
+
+    return response()->json(['message' => 'Status updated']);
+}
+
+public function destroy($id) {
+    $journey = Journey::findOrFail($id);
+    $journey->delete();
+
+    return response()->json(['message' => 'Journey deleted']);
+}
 }
