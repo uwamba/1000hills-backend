@@ -16,6 +16,7 @@ class Journey extends Model
         'departure',
         'return',
         'bus_id',
+        'price',
         'status',
         'time',
         'updated_by',

@@ -16,6 +16,7 @@ class JourneyResource extends JsonResource
         'departure' => $this->departure,
         'return' => $this->return,
         'bus_id' => $this->bus_id,
+        'price' => $this->price,
         'bus' => [
             'id' => $this->bus?->id,
             'name' => $this->bus?->name,

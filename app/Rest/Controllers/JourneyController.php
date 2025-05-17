@@ -22,6 +22,7 @@ class JourneyController extends RestController
         $validated = $request->validate([
             'from' => 'required|string|max:255',
             'to' => 'required|string|max:255',
+            'price' => 'required|numeric',
             'departure' => 'required|date',
             'return' => 'nullable|date',
             'bus_id' => 'required|exists:buses,id',
@@ -46,6 +47,7 @@ class JourneyController extends RestController
             'to' => 'sometimes|required|string|max:255',
             'departure' => 'sometimes|required|date',
             'return' => 'nullable|date',
+            'price' => 'required|numeric',
             'bus_id' => 'sometimes|required|exists:buses,id',
             'status' => 'nullable|string',
             'updated_by' => 'nullable|integer|exists:users,id',
