@@ -2,9 +2,10 @@
 
 namespace App\Rest\Resources;
 
-use App\Rest\Resource as RestResource;
 use App\Models\Room;
+use App\Rest\Resource as RestResource;
 use Lomkit\Rest\Http\Requests\RestRequest;
+
 
 class RoomResource extends RestResource
 {
@@ -23,7 +24,7 @@ class RoomResource extends RestResource
     public int $defaultLimit = 50;
 
     /**
-     * The exposed fields that could be provided
+     * The exposed fields that could be provided.
      *
      * @param RestRequest $request
      * @return array
@@ -42,15 +43,26 @@ class RoomResource extends RestResource
             'number_of_people',
             'has_ac',
             'hotel_id',
-            'status',        // Newly added
-            'updated_by',    // Newly added
-            'deleted_by',    // Newly added
-            'deleted_on',    // Newly added
+            'status',
+
+            // New feature fields
+            'has_swimming_pool',
+            'has_laundry',
+            'has_gym',
+            'has_room_service',
+            'has_sauna_massage',
+            'has_kitchen',
+            'has_fridge',
+
+            // System fields
+            'updated_by',
+            'deleted_by',
+            'deleted_on',
         ];
     }
 
     /**
-     * The exposed relations that could be provided
+     * The exposed relations that could be provided.
      *
      * @param RestRequest $request
      * @return array
@@ -60,13 +72,13 @@ class RoomResource extends RestResource
         return [
             'hotel' => [
                 'type' => 'relationship',
-                'resource' => HotelResource::class, // Assuming you have a HotelResource
+                'resource' => HotelResource::class,
             ],
         ];
     }
 
     /**
-     * The exposed limits that could be provided
+     * The exposed limits that could be provided.
      *
      * @param RestRequest $request
      * @return array
@@ -85,7 +97,7 @@ class RoomResource extends RestResource
     }
 
     /**
-     * The actions that should be linked
+     * The actions that should be linked.
      *
      * @param RestRequest $request
      * @return array
@@ -96,7 +108,7 @@ class RoomResource extends RestResource
     }
 
     /**
-     * The instructions that should be linked
+     * The instructions that should be linked.
      *
      * @param RestRequest $request
      * @return array

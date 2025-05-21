@@ -29,6 +29,11 @@ class ApartmentController extends RestController
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
             'status' => 'nullable|string|in:active,inactive',
+            'swimming_pool' => 'nullable|boolean',
+            'laundry' => 'nullable|boolean',
+            'gym' => 'nullable|boolean',
+            'room_service' => 'nullable|boolean',
+            'sauna_massage' => 'nullable|boolean',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'active';
@@ -73,6 +78,11 @@ class ApartmentController extends RestController
             'annexes' => 'nullable|string',
             'description' => 'nullable|string',
             'status' => 'nullable|string|in:active,inactive',
+            'swimming_pool' => 'nullable|boolean',
+            'laundry' => 'nullable|boolean',
+            'gym' => 'nullable|boolean',
+            'room_service' => 'nullable|boolean',
+            'sauna_massage' => 'nullable|boolean',
         ]);
 
         $validated['updated_by'] = Auth::id();
@@ -95,4 +105,17 @@ class ApartmentController extends RestController
 
         return new ApartmentResource($apartment);
     }
+    public function destroy($id)
+{
+    $apartment = Apartment::find($id);
+
+    if (!$apartment) {
+        return response()->json(['message' => 'Apartment not found'], 404);
+    }
+
+    $apartment->delete();
+
+    return response()->json(['message' => 'Apartment deleted successfully'], 200);
+}
+
 }

@@ -9,10 +9,8 @@ class Room extends Model
 {
     use HasFactory;
 
-    // Table name (optional if it matches the plural form of the model name)
     protected $table = 'rooms';
 
-    // Fillable fields for mass assignment
     protected $fillable = [
         'name',
         'type',
@@ -24,10 +22,21 @@ class Room extends Model
         'number_of_people',
         'has_ac',
         'hotel_id',
-        'status',        // New field
-        'updated_by',    // New field
-        'deleted_by',    // New field
-        'deleted_on',    // New field
+        'status',
+
+        // New boolean fields for features
+        'has_swimming_pool',
+        'has_laundry',
+        'has_gym',
+        'has_room_service',
+        'has_sauna_massage',
+        'has_kitchen',
+        'has_fridge',
+
+        // System fields
+        'updated_by',
+        'deleted_by',
+        'deleted_on',
     ];
 
     protected $casts = [
@@ -35,7 +44,14 @@ class Room extends Model
         'has_wireless' => 'boolean',
         'has_bathroom' => 'boolean',
         'has_ac' => 'boolean',
-        'deleted_on' => 'datetime',  // Cast deleted_on to datetime
+        'has_swimming_pool' => 'boolean',
+        'has_laundry' => 'boolean',
+        'has_gym' => 'boolean',
+        'has_room_service' => 'boolean',
+        'has_sauna_massage' => 'boolean',
+        'has_kitchen' => 'boolean',
+        'has_fridge' => 'boolean',
+        'deleted_on' => 'datetime',
     ];
 
     public function hotel()
@@ -43,7 +59,6 @@ class Room extends Model
         return $this->belongsTo(Hotel::class);
     }
 
-    // (Optional) Relationships to users for updated_by and deleted_by
     public function updatedBy()
     {
         return $this->belongsTo(User::class, 'updated_by');
@@ -53,9 +68,10 @@ class Room extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
     public function photos()
-{
-    return $this->hasMany(Photo::class, 'object_id')
-        ->where('object_type', 'room');
-}
+    {
+        return $this->hasMany(Photo::class, 'object_id')
+            ->where('object_type', 'room');
+    }
 }

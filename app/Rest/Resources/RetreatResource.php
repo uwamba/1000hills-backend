@@ -5,27 +5,18 @@ namespace App\Rest\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class ApartmentResource extends JsonResource
+class RetreatResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'number_of_bedroom' => $this->number_of_bedroom,
-            'kitchen_inside' => $this->kitchen_inside,
-            'kitchen_outside' => $this->kitchen_outside,
-            'number_of_floor' => $this->number_of_floor,
-            'address' => $this->address,
-            'coordinate' => $this->coordinate,
-            'annexes' => $this->annexes,
+            'title' => $this->title,
             'description' => $this->description,
+            'address' => $this->address,
+            'capacity' => $this->capacity,
             'status' => $this->status,
-            'swimming_pool' => $this->swimming_pool,
-            'laundry' => $this->laundry,
-            'gym' => $this->gym,
-            'room_service' => $this->room_service,
-            'sauna_massage' => $this->sauna_massage,
+            'viewed' => $this->viewed,
             'updated_by' => $this->updated_by,
             'deleted_by' => $this->deleted_by,
             'deleted_on' => $this->deleted_on,

@@ -28,6 +28,9 @@ use App\Rest\Controllers\BookingController as TransportBookingController;
 // Apartment Module Controller
 use App\Rest\Controllers\ApartmentController;
 
+// Retreat Module Controller
+use App\Rest\Controllers\RetreatController;
+
 // otp verification
 Route::post('/send-otp', [OtpController::class, 'send']);
 Route::post('/verify-otp', [OtpController::class, 'verify']);
@@ -61,3 +64,6 @@ Route::apiResource('journeys', JourneyController::class);
 
 // Apartments
 Route::apiResource('apartments', ApartmentController::class);
+
+// Retreats
+Route::apiResource('retreats', RetreatController::class);

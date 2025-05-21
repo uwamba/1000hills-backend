@@ -75,19 +75,53 @@ public function getAllHotelNames()
             'description' => 'nullable|string',
             'stars' => 'nullable|integer|min:1|max:5',
             'working_time' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:255',        // New field
-            'updated_by' => 'nullable|integer|exists:users,id',  // New field
-            'deleted_by' => 'nullable|integer|exists:users,id',  // New field
-            'deleted_on' => 'nullable|date',                // New field
+            'status' => 'nullable|string|max:255',
+            'updated_by' => 'nullable|integer|exists:users,id',
+            'deleted_by' => 'nullable|integer|exists:users,id',
+            'deleted_on' => 'nullable|date',
         ]);
-
+    
         $hotel->update($validated);
-        return response()->json($hotel);
+
+        // Handle photo replacement
+        if ($request->hasFile('photos')) {
+            // Delete old photos
+            foreach ($hotel->photos as $photo) {
+                if ($photo->path && Storage::disk('public')->exists($photo->path)) {
+                    Storage::disk('public')->delete($photo->path);
+                }
+                $photo->delete();
+            }
+
+            // Upload new photo(s)
+            foreach ($request->file('photos') as $uploadedPhoto) {
+                $path = $uploadedPhoto->store('photos/hotels', 'public');
+
+                Photo::create([
+                    'name' => $uploadedPhoto->getClientOriginalName(),
+                    'path' => $path,
+                    'status' => 'active',
+                    'object_type' => 'hotel',
+                    'object_id' => $hotel->id,
+                ]);
+            }
+        }
+
+        return response()->json($hotel->load('photos'));
+    }
+    
+
+    public function destroy($id)
+{
+    $hotel = Hotel::find($id);
+
+    if (!$hotel) {
+        return response()->json(['message' => 'Hotel not found'], 404);
     }
 
-    public function destroy($hotel)
-    {
-        $hotel->delete();
-        return response()->json(null, 204);
-    }
+    $hotel->delete();
+
+    return response()->json(['message' => 'Hotel deleted successfully'], 200);
+}
+
 }

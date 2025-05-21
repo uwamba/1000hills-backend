@@ -11,10 +11,9 @@ use Carbon\Carbon;
 
 class RoomController extends RestController
 {
-   
     public function index()
     {
-        $perPage = 10; // You can change this to any number or get it from query params
+        $perPage = 10;
         $hotels = Room::with('photos')->paginate($perPage);
     
         return response()->json($hotels, 200);
@@ -32,17 +31,28 @@ class RoomController extends RestController
             'currency' => 'required|string|max:10',
             'number_of_people' => 'required|integer',
             'has_ac' => 'required|boolean',
-            'hotel_id' => 'required',
-            'status' => 'sometimes|string|max:50', // Optional status field
+            'hotel_id' => 'required|exists:hotels,id',
+            'status' => 'sometimes|string|max:50',
+
+            // New feature fields (optional boolean inputs)
+            'has_swimming_pool' => 'sometimes|boolean',
+            'has_laundry' => 'sometimes|boolean',
+            'has_gym' => 'sometimes|boolean',
+            'has_room_service' => 'sometimes|boolean',
+            'has_sauna_massage' => 'sometimes|boolean',
+            'has_kitchen' => 'sometimes|boolean',
+            'has_fridge' => 'sometimes|boolean',
         ]);
 
         // Automatically set updated_by
+        $validated['updated_by'] = Auth::id();
 
         $room = Room::create($validated);
+
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
                 $path = $photo->store('photos/rooms', 'public');
-        
+
                 Photo::create([
                     'name' => $photo->getClientOriginalName(),
                     'path' => $path,
@@ -52,25 +62,24 @@ class RoomController extends RestController
                 ]);
             }
         }
+
         return response()->json($room, 201);
     }
 
     public function show($id)
-{
-    $room = Room::with('photos', 'hotel', 'updatedBy', 'deletedBy') // Ensure necessary relationships are loaded
-        ->findOrFail($id);
+    {
+        $room = Room::with('photos', 'hotel', 'updatedBy', 'deletedBy')
+            ->findOrFail($id);
 
-    // Fetch similar rooms based on type or hotel_id
-    $similarRooms = Room::where('id', '!=', $id) // Exclude the current room
-        ->limit(6) // Limit the number of similar rooms
-        ->get();
+        $similarRooms = Room::where('id', '!=', $id)
+            ->limit(6)
+            ->get();
 
-    return response()->json([
-        'room' => $room,
-        'similarRooms' => $similarRooms
-    ]);
-}
-
+        return response()->json([
+            'room' => $room,
+            'similarRooms' => $similarRooms
+        ]);
+    }
 
     public function update(Request $request, Room $room)
     {
@@ -85,25 +94,41 @@ class RoomController extends RestController
             'number_of_people' => 'sometimes|required|integer',
             'has_ac' => 'sometimes|required|boolean',
             'hotel_id' => 'sometimes|required|exists:hotels,id',
-            'status' => 'sometimes|string|max:50', // Optional status update
+            'status' => 'sometimes|string|max:50',
+
+            // New feature fields (optional boolean updates)
+            'has_swimming_pool' => 'sometimes|boolean',
+            'has_laundry' => 'sometimes|boolean',
+            'has_gym' => 'sometimes|boolean',
+            'has_room_service' => 'sometimes|boolean',
+            'has_sauna_massage' => 'sometimes|boolean',
+            'has_kitchen' => 'sometimes|boolean',
+            'has_fridge' => 'sometimes|boolean',
         ]);
 
-        // Track who updated
         $validated['updated_by'] = Auth::id();
 
         $room->update($validated);
+
         return response()->json($room);
     }
 
-    public function destroy($room)
+    public function destroy($id)
     {
-        // Soft-delete related tracking fields
+        $room = Room::find($id);
+    
+        if (!$room) {
+            return response()->json(['message' => 'Room not found'], 404);
+        }
+    
         $room->update([
             'deleted_by' => Auth::id(),
             'deleted_on' => Carbon::now(),
         ]);
-
+    
         $room->delete();
-        return response()->json(null, 204);
+    
+        return response()->json(['message' => 'Room deleted successfully'], 200);
     }
+    
 }

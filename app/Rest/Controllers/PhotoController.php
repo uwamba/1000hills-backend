@@ -37,26 +37,38 @@ class PhotoController extends RestController
         return new PhotoResource($photo);
     }
 
-    public function update(Request $request, Photo $photo)
-    {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'path' => 'sometimes|required|string|max:255',
-            'object_type' => 'sometimes|required|string|max:255',
-            'object_id' => 'sometimes|required|integer',
-            'status' => 'nullable|string',           // New field validation
-            'updated_by' => 'nullable|integer',      // New field validation
-            'deleted_by' => 'nullable|integer',      // New field validation
-            'deleted_on' => 'nullable|date',         // New field validation
-        ]);
+  public function update(Request $request, Photo $photo)
+{
+    $validated = $request->validate([
+        'name' => 'sometimes|required|string|max:255',
+        'path' => 'sometimes|required|string|max:255',
+        'object_type' => 'sometimes|required|string|max:255',
+        'object_id' => 'sometimes|required|integer',
+        'status' => 'nullable|string',
+        'updated_by' => 'nullable|integer',
+        'deleted_by' => 'nullable|integer',
+        'deleted_on' => 'nullable|date',
+    ]);
 
-        $photo->update($validated);
-        return new PhotoResource($photo);
-    }
+    // Fill only validated data
+    $photo->fill($validated);
+
+    // Save changes
+    $photo->save();
+
+    return new PhotoResource($photo);
+}
 
     public function destroy($photo)
     {
+        $photo = Photo::find($photo);
+    
+        if (!$photo) {
+            return response()->json(['message' => 'Photo not found'], 404);
+        }
+    
         $photo->delete();
+    
         return response()->json(null, 204);
     }
 }

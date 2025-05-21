@@ -17,6 +17,11 @@ class Apartment extends Model
         'annexes',
         'description',
         'status',
+        'swimming_pool',
+        'laundry',
+        'gym',
+        'room_service',
+        'sauna_massage',
         'updated_by',
         'deleted_by',
         'deleted_on',
@@ -26,6 +31,11 @@ class Apartment extends Model
         'coordinate' => 'array', // assuming JSON format
         'kitchen_inside' => 'boolean',
         'kitchen_outside' => 'boolean',
+        'swimming_pool' => 'boolean',
+        'laundry' => 'boolean',
+        'gym' => 'boolean',
+        'room_service' => 'boolean',
+        'sauna_massage' => 'boolean',
     ];
 
     public function updatedBy()
