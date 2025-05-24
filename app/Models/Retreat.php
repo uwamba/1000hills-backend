@@ -19,6 +19,16 @@ class Retreat extends Model
         'address',
         'capacity',
         'status',
+        'type',
+        'wifi',
+        'projector',
+        'theater',
+        'flip_chart',
+        'whiteboard',
+        'pricing_type',
+        'price_per_person',
+        'package_price',
+        'package_size',
         'updated_by',
         'deleted_by',
         'deleted_on',
@@ -27,6 +37,15 @@ class Retreat extends Model
 
     // Cast fields as needed
     protected $casts = [
+        'wifi' => 'boolean',
+        'projector' => 'boolean',
+        'theater' => 'boolean',
+        'flip_chart' => 'boolean',
+        'whiteboard' => 'boolean',
+        'capacity' => 'integer',
+        'price_per_person' => 'float',
+        'package_price' => 'float',
+        'package_size' => 'integer',
         'deleted_on' => 'datetime',
         'viewed' => 'integer',
     ];
@@ -35,6 +54,6 @@ class Retreat extends Model
     public function photos()
     {
         return $this->hasMany(Photo::class, 'object_id')
-            ->where('object_type', 'retreat');
+                    ->where('object_type', 'retreat');
     }
 }

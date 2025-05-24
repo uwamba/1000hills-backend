@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Rest\Controller as RestController;
 use App\Rest\Resources\RetreatResource;
+use Carbon\Carbon;
 
 class RetreatController extends RestController
 {
@@ -27,6 +28,16 @@ class RetreatController extends RestController
             'address' => 'required|string|max:255',
             'capacity' => 'required|integer',
             'status' => 'nullable|string|in:active,inactive',
+            'type' => 'nullable|string|max:255',
+            'wifi' => 'nullable|boolean',
+            'projector' => 'nullable|boolean',
+            'theater' => 'nullable|boolean',
+            'flip_chart' => 'nullable|boolean',
+            'whiteboard' => 'nullable|boolean',
+            'pricing_type' => 'nullable|string',
+            'price_per_person' => 'nullable|numeric',
+            'package_price' => 'nullable|numeric',
+            'package_size' => 'nullable|integer',
             'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
@@ -35,7 +46,6 @@ class RetreatController extends RestController
 
         $retreat = Retreat::create($validated);
 
-        // Handle photo uploads
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photoFile) {
                 $path = $photoFile->store('retreats', 'public');
@@ -66,13 +76,22 @@ class RetreatController extends RestController
             'address' => 'sometimes|required|string|max:255',
             'capacity' => 'sometimes|required|integer',
             'status' => 'nullable|string|in:active,inactive',
+            'type' => 'nullable|string|max:255',
+            'wifi' => 'nullable|boolean',
+            'projector' => 'nullable|boolean',
+            'theater' => 'nullable|boolean',
+            'flip_chart' => 'nullable|boolean',
+            'whiteboard' => 'nullable|boolean',
+            'pricing_type' => 'nullable|string|in:per_person,per_package',
+            'price_per_person' => 'nullable|numeric',
+            'package_price' => 'nullable|numeric',
+            'package_size' => 'nullable|integer',
             'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $validated['updated_by'] = Auth::id();
         $retreat->update($validated);
 
-        // Handle new photo uploads on update
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photoFile) {
                 $path = $photoFile->store('retreats', 'public');
@@ -90,16 +109,21 @@ class RetreatController extends RestController
 
         return new RetreatResource($retreat);
     }
+
     public function destroy($id)
-{
-    $retreat = Retreat::find($id);
+    {
+        $retreat = Retreat::find($id);
 
-    if (!$retreat) {
-        return response()->json(['message' => 'Retreat not found'], 404);
+        if (!$retreat) {
+            return response()->json(['message' => 'Retreat not found'], 404);
+        }
+
+        // Soft-delete using deleted_on field
+        $retreat->update([
+            'deleted_on' => Carbon::now(),
+            'updated_by' => Auth::id(),
+        ]);
+
+        return response()->json(['message' => 'Retreat deleted successfully']);
     }
-
-    $retreat->delete();
-
-    return response()->json(['message' => 'Retreat deleted successfully']);
-}
 }
