@@ -7,9 +7,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "abraham-flutterwave/laravel-payment": "^2.1",
         "bmatovu/laravel-mtn-momo": "^4.4",
         "guzzlehttp/guzzle": "^7.9",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^11.0",
         "laravel/passport": "^13.0",
         "laravel/tinker": "^2.10.1",
         "lomkit/laravel-rest-api": "^2.12"

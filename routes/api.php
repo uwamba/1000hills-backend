@@ -25,6 +25,10 @@ use App\Rest\Controllers\JourneyController;
 use App\Rest\Controllers\OtpController;
 use App\Rest\Controllers\BookingController as TransportBookingController;
 
+
+
+
+
 // Apartment Module Controller
 use App\Rest\Controllers\ApartmentController;
 
@@ -35,6 +39,12 @@ use App\Rest\Controllers\RetreatController;
 Route::post('/send-otp', [OtpController::class, 'send']);
 Route::post('/verify-otp', [OtpController::class, 'verify']);
 Route::post('/bookings', [BookingController::class, 'store']);
+
+Route::post('/flutterwave/payment', [PaymentController::class, 'makePayment']);
+Route::post('/flutterwave/payment/webhook', [PaymentController::class, 'handleWebhook']);
+Route::post('/payments/momo/request', [PaymentController::class, 'requestMtnMomoPayment']);
+
+
 
 
 // Common
@@ -67,3 +77,8 @@ Route::apiResource('apartments', ApartmentController::class);
 
 // Retreats
 Route::apiResource('retreats', RetreatController::class);
+
+
+
+
+
