@@ -20,6 +20,15 @@ use App\Models\Journey;
 use Illuminate\Support\Facades\Log;
 
 
+use Flutterwave\Payments\Facades\Flutterwave;
+use Flutterwave\Payments\Data\Currency;
+
+
+use Bmatovu\MtnMomo\Products\Collection;
+use Bmatovu\MtnMomo\Exceptions\CollectionRequestException;
+use Illuminate\Support\Str;
+
+
 class BookingController extends RestController
 {
     public function index()
@@ -46,6 +55,8 @@ class BookingController extends RestController
             'object_id' => 'required',
             'amount_to_pay' => 'required',
             'status' => 'nullable|string|max:50',
+            'payment_method' => 'required|string', // New field for payment method
+            'momo_number' => 'nullable|string|max:20', // For MTN MoMo payments
         ]);
         Log::info('Validation passed', $validated);
 
@@ -63,13 +74,6 @@ class BookingController extends RestController
 
         );
         Log::info('Client retrieved/created', ['client_id' => $client->id]);
-
-
-
-
-
-
-        // ...
 
         // Fetch the right object based on type
         $objectType = $validated['object_type'];
@@ -107,6 +111,15 @@ class BookingController extends RestController
                 'amount_to_pay' => $validated['amount_to_pay'],
                 'status' => $validated['status'] ?? "pending",
             ]);
+            $payment = Payment::create([
+                'transaction_id' => $booking->id, // Placeholder until payment is made
+                'client_id' => $client->id,
+                'amount_paid' => $booking->amount_to_pay, // Initial amount
+                'account' => $client->email,
+                'type' => 'booking',
+                'status' => 'pending',
+                'created_by' => Auth::id(),
+            ]);
 
             Log::info('Booking created successfully', ['booking_id' => $booking->id]);
 
@@ -124,8 +137,47 @@ class BookingController extends RestController
             'amount' => $booking->amount_to_pay,
             'booking' => $booking->id,
         ]);
-        $paymentLink = "{$frontend}/payment?{$params}";
-        Log::info("Generated front‑end payment link: {$paymentLink}");
+        $paymentLink = "";
+        if ($request->payment_method === 'flutterwave') {
+            // 1️⃣ Generate Flutterwave payment link
+            $response = $this->makeFlutterwavePaymentLink(
+                $booking->amount_to_pay,
+                "USD", // Currency
+                $booking->client->email
+            );
+
+            // Convert JsonResponse to array
+            $payment = $response->getData(true); // "true" returns an array instead of stdClass
+
+            Log::info("Generated Flutterwave payment link: " . json_encode($payment));
+
+            // Now you can safely access it like an array
+            $paymentLink = $payment['payment_link'];
+
+            Log::info("Generated front‑end payment link: {$paymentLink}");
+
+
+        } elseif ($request->payment_method === 'momo_rwanda') {
+            // 2️⃣ Request MTN MoMo payment
+            $momo_number = $validated['momo_number'] ?? null;
+            if (!$momo_number) {
+                Log::error('MTN MoMo phone number is required for MoMo payments');
+                return response()->json(['message' => 'MTN MoMo phone number is required'], 400);
+            }
+            /* $paymentLink = $this->requestMtnMomoPayment(
+                $booking->amount_to_pay,
+                "FRW", // Assuming EUR for simplicity
+                $momo_number
+            );
+            */
+            $paymentLink = "{$frontend}/payment?{$params}";
+            Log::info("Generated front‑end payment link: {$paymentLink}");
+
+            Log::info("Requested MTN MoMo payment link: {$paymentLink}");
+        } else {
+            Log::error('Unsupported payment method', ['method' => $request->payment_method]);
+            return response()->json(['message' => 'Unsupported payment method'], 400);
+        }
 
         // 3️⃣ Email that link
         Mail::to($booking->client->email)
@@ -141,6 +193,59 @@ class BookingController extends RestController
 
     }
 
+    private function makeFlutterwavePaymentLink($amount, $currency, $email)
+    {
+
+        $payload = [
+            'tx_ref' => Flutterwave::generateTransactionReference(),
+            'amount' => $amount,
+            'currency' => $currency,
+            'customer' => [
+                'email' => $email,
+            ],
+        ];
+
+        // Render the standard modal and get the redirect link
+        $paymentLink = Flutterwave::render('standard', $payload);
+
+        return response()->json([
+            'status' => 'success',
+            'payment_link' => $paymentLink,
+        ]);
+    }
+
+    private function requestMtnMomoPayment($amount, $currency, $momo_phone)
+    {
+
+
+        try {
+            $collection = new Collection();
+
+            $referenceId = $collection->requestToPay(
+                (string) Str::uuid(),
+                $momo_phone,
+                $amount,
+                $currency,
+                $payerMessage = 'Payment for services',
+            );
+
+
+            return response()->json([
+                'status' => 'success',
+                'referenceId' => $referenceId,
+            ], 200);
+
+        } catch (CollectionRequestException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to initiate payment request.',
+                'errors' => [
+                    $e->getMessage(),
+                    optional($e->getPrevious())->getMessage(),
+                ],
+            ], 400);
+        }
+    }
     public function show(Booking $booking)
     {
         return new BookingResource($booking);

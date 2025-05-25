@@ -34,6 +34,18 @@ class ClientController extends RestController
         $client = Client::create($validated);
         return new ClientResource($client);
     }
+    public function storeIfNotExists(Request $request)
+{
+    return Client::firstOrCreate(
+        ['email' => $request->email],
+        [
+            'names' => $request->names,
+            'phone' => $request->phone,
+            'country' => $request->country,
+        ]
+    );
+}
+
 
     public function show(Client $client)
     {
