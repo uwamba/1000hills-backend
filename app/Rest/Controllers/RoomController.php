@@ -56,7 +56,6 @@ class RoomController extends RestController
                 Photo::create([
                     'name' => $photo->getClientOriginalName(),
                     'path' => $path,
-                    'status' => 'active',
                     'object_type' => 'room',
                     'object_id' => $room->id,
                 ]);

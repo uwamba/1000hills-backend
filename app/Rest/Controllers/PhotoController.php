@@ -21,8 +21,7 @@ class PhotoController extends RestController
             'name' => 'required|string|max:255',
             'path' => 'required|string|max:255',
             'object_type' => 'required|string|max:255',
-            'object_id' => 'required|integer',
-            'status' => 'nullable|string',           // New field validation
+            'object_id' => 'required|integer',          // New field validation
             'updated_by' => 'nullable|integer',      // New field validation
             'deleted_by' => 'nullable|integer',      // New field validation
             'deleted_on' => 'nullable|date',         // New field validation
@@ -44,7 +43,6 @@ class PhotoController extends RestController
         'path' => 'sometimes|required|string|max:255',
         'object_type' => 'sometimes|required|string|max:255',
         'object_id' => 'sometimes|required|integer',
-        'status' => 'nullable|string',
         'updated_by' => 'nullable|integer',
         'deleted_by' => 'nullable|integer',
         'deleted_on' => 'nullable|date',

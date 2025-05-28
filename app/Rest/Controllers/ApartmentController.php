@@ -49,7 +49,6 @@ class ApartmentController extends RestController
                 Photo::create([
                     'name' => $photo->getClientOriginalName(),
                     'path' => $path,
-                    'status' => 'active',
                     'object_type' => 'apartment',
                     'object_id' => $apartment->id,
                 ]);
@@ -96,7 +95,6 @@ class ApartmentController extends RestController
                 Photo::create([
                     'name' => $photo->getClientOriginalName(),
                     'path' => $path,
-                    'status' => 'active',
                     'object_type' => 'apartment',
                     'object_id' => $apartment->id,
                 ]);
