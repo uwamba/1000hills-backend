@@ -14,6 +14,7 @@ class Booking extends Model
     'object_type',
     'object_id',
     'client_id',
+    'seat',
     'amount_to_pay',
     'status',        // New field
     'updated_by',    // New field

@@ -53,6 +53,8 @@ Route::apiResource('admin-manages', AdminManageController::class);
 Route::apiResource('photos', PhotoController::class);
 Route::apiResource('payments', PaymentController::class);
 Route::apiResource('accounts', AccountController::class);
+Route::get('/booked-seats/{objectId}', [BookingController::class, 'getBookedSeats']);
+Route::post('/booking/ticket', [BookingController::class, 'bookingTicket']);
 Route::apiResource('bookings', BookingController::class);
 Route::apiResource('clients', ClientController::class);
 

@@ -55,9 +55,11 @@ class BookingController extends RestController
             'object_id' => 'required',
             'amount_to_pay' => 'required',
             'status' => 'nullable|string|max:50',
-            'payment_method' => 'required|string', // New field for payment method
-            'momo_number' => 'nullable|string|max:20', // For MTN MoMo payments
+            'payment_method' => 'required|string',
+            'momo_number' => 'nullable|string|max:20',
+
         ]);
+
         Log::info('Validation passed', $validated);
 
         // Find or create client
@@ -111,6 +113,153 @@ class BookingController extends RestController
                 'amount_to_pay' => $validated['amount_to_pay'],
                 'status' => $validated['status'] ?? "pending",
             ]);
+
+            $payment = Payment::create([
+                'transaction_id' => $booking->id, // Placeholder until payment is made
+                'client_id' => $client->id,
+                'amount_paid' => $booking->amount_to_pay, // Initial amount
+                'account' => $client->email,
+                'type' => 'booking',
+                'status' => 'pending',
+                'created_by' => Auth::id(),
+            ]);
+
+            Log::info('Booking created successfully', ['booking_id' => $booking->id]);
+
+        } catch (\Exception $e) {
+            Log::error('Failed to create booking', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Booking failed'], 500);
+        }
+
+        $frontend = rtrim(config('app.frontend_url', env('FRONTEND_URL')), '/');
+        $params = http_build_query([
+            'names' => $booking->client->names,
+            'email' => $booking->client->email,
+            'country' => $booking->client->country,
+            'phone' => $booking->client->phone,
+            'amount' => $booking->amount_to_pay,
+            'booking' => $booking->id,
+        ]);
+        $paymentLink = "";
+        if ($request->payment_method === 'flutterwave') {
+            // 1️⃣ Generate Flutterwave payment link
+            $response = $this->makeFlutterwavePaymentLink(
+                $booking->amount_to_pay,
+                "USD", // Currency
+                $booking->client->email
+            );
+
+            // Convert JsonResponse to array
+            $payment = $response->getData(true); // "true" returns an array instead of stdClass
+
+            Log::info("Generated Flutterwave payment link: " . json_encode($payment));
+
+            // Now you can safely access it like an array
+            $paymentLink = $payment['payment_link'];
+
+            Log::info("Generated front‑end payment link: {$paymentLink}");
+
+
+        } elseif ($request->payment_method === 'momo_rwanda') {
+            // 2️⃣ Request MTN MoMo payment
+            $momo_number = $validated['momo_number'] ?? null;
+            if (!$momo_number) {
+                Log::error('MTN MoMo phone number is required for MoMo payments');
+                return response()->json(['message' => 'MTN MoMo phone number is required'], 400);
+            }
+            /* $paymentLink = $this->requestMtnMomoPayment(
+                $booking->amount_to_pay,
+                "FRW", // Assuming EUR for simplicity
+                $momo_number
+            );
+            */
+            $paymentLink = "{$frontend}/payment?{$params}";
+            Log::info("Generated front‑end payment link: {$paymentLink}");
+
+            Log::info("Requested MTN MoMo payment link: {$paymentLink}");
+        } else {
+            Log::error('Unsupported payment method', ['method' => $request->payment_method]);
+            return response()->json(['message' => 'Unsupported payment method'], 400);
+        }
+
+        // 3️⃣ Email that link
+        Mail::to($booking->client->email)
+            ->send(new PaymentLinkMail($booking, $paymentLink));
+        Log::info("Payment form link emailed to " . $booking->client->email);
+
+        // 4️⃣ Return response
+        return response()->json([
+            'message' => 'Booking successful; payment link sent',
+            'booking' => $booking,
+            'payment_url' => $paymentLink,
+        ], 201);
+
+    }
+
+    public function bookingTicket(Request $request)
+    {
+        Log::info('Booking.store called with payload: ' . json_encode($request->all()));
+
+        // Validate incoming request
+        $validated = $request->validate([
+           
+            'email' => 'required|email',
+            'names' => 'required|string',
+            'phone' => 'required|string',
+            'object_type' => 'required|string|max:255',
+            'object_id' => 'required',
+            'amount_to_pay' => 'required',
+            'status' => 'nullable|string|max:50',
+            'payment_method' => 'required|string',
+            'momo_number' => 'nullable|string|max:20',
+            'country' => 'required|string',
+            'seat' => 'nullable|string|max:20',
+        ]);
+
+        Log::info('Validation passed', $validated);
+
+        // Find or create client
+        $client = Client::firstOrCreate(
+            ['email' => $validated['email']],
+            [
+                'names' => $validated['names'],
+                'country' => $validated['country'],
+                'phone' => $validated['phone'],
+                'password' => bcrypt('defaultpassword'), // Default password
+                'address' => $validated['address'] ?? $validated['country']
+            ],
+            // Default to country if address not provided
+
+        );
+        Log::info('Client retrieved/created', ['client_id' => $client->id]);
+
+        // Fetch the right object based on type
+        $objectType = $validated['object_type'];
+        $objectId = $validated['object_id'];
+
+        
+            $object = Journey::find($objectId);
+            if (!$object) {
+                Log::error('object not found', ['object_id' => $objectId]);
+                return response()->json(['message' => 'object not found'], 404);
+            }
+            Log::info('Room found', ['room_id' => $object->id]);
+
+        
+
+        // Create booking
+        try {
+            $booking = Booking::create([
+                'client_id' => $client->id,
+                'object_type' => $objectType,
+                'object_id' => $object->id,
+                'from_date_time' => now(),
+                'to_date_time' => now()->addHours(2),// Assuming Journey has these fields
+                'amount_to_pay' => $validated['amount_to_pay'],
+                'status' => $validated['status'] ?? "pending",
+                'seat' => $validated['seat'] ?? null, 
+            ]);
+
             $payment = Payment::create([
                 'transaction_id' => $booking->id, // Placeholder until payment is made
                 'client_id' => $client->id,
@@ -271,6 +420,13 @@ class BookingController extends RestController
         return new BookingResource($booking);
     }
 
+    public function getBookedSeats(int $objectId, string $objectType = 'ticket',)
+    {
+        return Booking::where('object_type', $objectType)
+            ->where('object_id', $objectId)
+            ->whereNotNull('seat')
+            ->pluck('seat');
+    }
     public function destroy($booking)
     {
         $booking->update([
