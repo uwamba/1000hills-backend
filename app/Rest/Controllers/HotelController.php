@@ -6,6 +6,8 @@ use App\Rest\Controller as RestController;
 use App\Models\Hotel;
 use Illuminate\Http\Request;
 use App\Models\Photo;
+use Illuminate\Support\Facades\Storage;
+
 
 class HotelController extends RestController
 {
@@ -52,7 +54,6 @@ public function getAllHotelNames()
                Photo::create([
                     'name' => $photo->getClientOriginalName(),
                     'path' => $path,
-                    'status' => 'active',
                     'object_type' => 'hotel',
                     'object_id' => $hotel->id,
                 ]);
@@ -100,7 +101,6 @@ public function getAllHotelNames()
                 Photo::create([
                     'name' => $uploadedPhoto->getClientOriginalName(),
                     'path' => $path,
-                    'status' => 'active',
                     'object_type' => 'hotel',
                     'object_id' => $hotel->id,
                 ]);
