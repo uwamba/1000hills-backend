@@ -20,6 +20,8 @@ class Apartment extends Model
         'swimming_pool',
         'laundry',
         'gym',
+        'price_per_night',
+        'price_per_month',
         'room_service',
         'sauna_massage',
         'updated_by',

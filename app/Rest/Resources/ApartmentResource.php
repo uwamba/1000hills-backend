@@ -2,12 +2,11 @@
 
 namespace App\Rest\Resources;
 
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class ApartmentResource extends JsonResource
 {
-    public function toArray(Request $request): array
+    public function toArray($request)
     {
         return [
             'id' => $this->id,
@@ -26,19 +25,27 @@ class ApartmentResource extends JsonResource
             'gym' => $this->gym,
             'room_service' => $this->room_service,
             'sauna_massage' => $this->sauna_massage,
-            'updated_by' => $this->updated_by,
-            'deleted_by' => $this->deleted_by,
+            'price_per_night' => $this->price_per_night,
+            'price_per_month' => $this->price_per_month,
+            'updated_by' => $this->updatedBy ? $this->updatedBy->only(['id', 'name', 'email']) : null,
+            'deleted_by' => $this->deletedBy ? $this->deletedBy->only(['id', 'name', 'email']) : null,
             'deleted_on' => $this->deleted_on,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+
+            // Updated photos with full details
             'photos' => $this->photos->map(function ($photo) {
                 return [
                     'id' => $photo->id,
                     'name' => $photo->name,
-                    'path' => $photo->path,
+                    'url' => $photo->path,
                     'status' => $photo->status,
+                    'deleted_on' => $photo->deleted_on,
+                    'updated_by' => $photo->updatedBy ? $photo->updatedBy->only(['id', 'name', 'email']) : null,
+                    'deleted_by' => $photo->deletedBy ? $photo->deletedBy->only(['id', 'name', 'email']) : null,
                 ];
             }),
+
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at,
         ];
     }
 }
