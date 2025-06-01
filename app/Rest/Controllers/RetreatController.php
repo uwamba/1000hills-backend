@@ -100,8 +100,7 @@ class RetreatController extends RestController
                     'name' => $photoFile->getClientOriginalName(),
                     'object_id' => $retreat->id,
                     'object_type' => 'retreat',
-                    'path' => $path,
-                    'status' => 'active',
+                    'path' => $path, 
                     'uploaded_by' => Auth::id(),
                 ]);
             }
