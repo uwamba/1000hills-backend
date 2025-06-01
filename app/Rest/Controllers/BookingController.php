@@ -2,6 +2,7 @@
 
 namespace App\Rest\Controllers;
 
+use App\Models\Apartment;
 use App\Rest\Controller as RestController;
 use App\Models\Booking;
 use App\Models\Client;
@@ -89,7 +90,17 @@ class BookingController extends RestController
             }
             Log::info('Room found', ['room_id' => $object->id]);
 
-        } elseif ($objectType === 'ticket') {
+        } 
+         elseif ($objectType === 'apartment') {
+            $object = Apartment::find($objectId);
+            if (!$object) {
+                Log::error('Apartemnt not found', ['object_id' => $objectId]);
+                return response()->json(['message' => 'Apartemnt not found'], 404);
+            }
+            Log::info('Room found', ['room_id' => $object->id]);
+
+        }
+        elseif ($objectType === 'ticket') {
             $object = Journey::find($objectId);
             if (!$object) {
                 Log::error('Journey not found', ['object_id' => $objectId]);
