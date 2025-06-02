@@ -12,6 +12,7 @@ use App\Rest\Controllers\AccountController;
 use App\Rest\Controllers\BookingController;
 use App\Rest\Controllers\ClientController;
 use App\Rest\Controllers\BusTicketController;
+use App\Rest\Controllers\AuthController;
 
 // Hotel Module Controllers
 use App\Rest\Controllers\HotelController;
@@ -34,6 +35,10 @@ use App\Rest\Controllers\ApartmentController;
 
 // Retreat Module Controller
 use App\Rest\Controllers\RetreatController;
+
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // otp verification
 Route::post('/send-otp', [OtpController::class, 'send']);
@@ -79,6 +84,18 @@ Route::apiResource('apartments', ApartmentController::class);
 
 // Retreats
 Route::apiResource('retreats', RetreatController::class);
+
+
+
+// Authentication and Authorization Middleware example refer to this for other role protect routes
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+   Route::apiResource('retreats', RetreatController::class);
+});
+
+Route::middleware(['auth', 'role:admin,editor'])->group(function () {
+   Route::apiResource('retreats', RetreatController::class);
+});
 
 
 
