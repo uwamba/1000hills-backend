@@ -19,7 +19,10 @@ class RetreatController extends RestController
             Retreat::whereNull('deleted_on')->get()
         );
     }
-
+    public function retreatList()
+    {
+        return RetreatResource::collection(Retreat::with('photos')->get());
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([

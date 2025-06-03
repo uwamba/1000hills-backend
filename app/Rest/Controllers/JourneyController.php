@@ -16,7 +16,10 @@ class JourneyController extends RestController
 );
 
     }
-
+    public function journeyList()
+    {
+        return JourneyResource::collection(Journey::all());
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
