@@ -8,10 +8,14 @@ use App\Mail\OtpMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 
 use Illuminate\Support\Facades\Cache;
 
+use App\Models\Client; // or User, depending on your app
+use Laravel\Passport\HasApiTokens;
 
 class OtpController extends RestController
 {
@@ -41,6 +45,55 @@ class OtpController extends RestController
 
         return response()->json(['message' => 'OTP sent']);
     }
+
+
+public function verify_new(Request $request)
+{
+    $request->validate([
+        'email' => 'required|email',
+        'otp'   => 'required|digits:6',
+    ]);
+
+    Log::info('OTP verify requested for email: '.$request->email.' with OTP: '.$request->otp);
+
+    $cacheKey = 'otp_' . $request->email;
+    $expectedOtp = Cache::get($cacheKey);
+
+    Log::info('Expected OTP from cache ('.$cacheKey.'): '.var_export($expectedOtp, true));
+
+    if ($expectedOtp && $expectedOtp == $request->otp) {
+        Cache::forget($cacheKey);
+
+        // ✅ Retrieve or create client
+        $client = Client::where('email', $request->email)->first();
+
+        if (!$client) {
+            // You can adjust this based on your app's logic
+            $client = Client::create([
+                'email' => $request->email,
+                'password' => bcrypt(str::random(10)), // placeholder if needed
+            ]);
+        }
+
+        // ✅ Authenticate the client
+        Auth::login($client); // optional: ensures the auth()->user() is set
+
+        // ✅ Generate Passport token
+        $token = $client->createToken('OTP Login')->accessToken;
+
+        Log::info('OTP verified and token issued for '.$request->email);
+
+        return response()->json([
+            'message' => 'Verified and authenticated',
+            'token' => $token,
+            'client' => $client,
+        ]);
+    }
+
+    Log::warning('OTP verification failed for '.$request->email.' — submitted: '.$request->otp.' expected: '.var_export($expectedOtp, true));
+    return response()->json(['message' => 'Invalid OTP'], 422);
+}
+
 
     public function verify(Request $request)
     {
