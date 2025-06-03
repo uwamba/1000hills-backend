@@ -59,21 +59,21 @@ Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 
 
 // ✅ Public routes (GET only)
-Route::get('accounts', AccountController::class)->only(['index', 'show']);
-Route::get('photos', PhotoController::class)->only(['index', 'show']);
-Route::get('admins', AdminController::class)->only(['index', 'show']);
-Route::get('admin-manages', AdminManageController::class)->only(['index', 'show']);
-Route::get('bookings', BookingController::class)->only(['index', 'show']);
-Route::get('clients', ClientController::class)->only(['index', 'show']);
-Route::get('hotels', HotelController::class)->only(['index', 'show']);
-Route::get('rooms', RoomController::class)->only(['index', 'show']);
-Route::get('agencies', AgencyController::class)->only(['index', 'show']);
-Route::get('routes', TransportRouteController::class)->only(['index', 'show']);
-Route::get('seat-types', SeatTypeController::class)->only(['index', 'show']);
-Route::get('buses', BusTicketController::class)->only(['index', 'show']);
-Route::get('journeys', JourneyController::class)->only(['index', 'show']);
-Route::get('retreats', RetreatController::class)->only(['index', 'show']);
-Route::get('apartments', ApartmentController::class)->only(['index', 'show']);
+Route::get('/accounts', AccountController::class)->only(['index', 'show']);
+Route::get('/photos', PhotoController::class)->only(['index', 'show']);
+Route::get('/admins', AdminController::class)->only(['index', 'show']);
+Route::get('/admin-manages', AdminManageController::class)->only(['index', 'show']);
+Route::get('/bookings', BookingController::class)->only(['index', 'show']);
+Route::get('/clients', ClientController::class)->only(['index', 'show']);
+Route::get('/hotels', HotelController::class)->only(['index', 'show']);
+Route::get('/rooms', RoomController::class)->only(['index', 'show']);
+Route::get('/agencies', AgencyController::class)->only(['index', 'show']);
+Route::get('/routes', TransportRouteController::class)->only(['index', 'show']);
+Route::get('/seat-types', SeatTypeController::class)->only(['index', 'show']);
+Route::get('/buses', BusTicketController::class)->only(['index', 'show']);
+Route::get('/journeys', JourneyController::class)->only(['index', 'show']);
+Route::get('/retreats', RetreatController::class)->only(['index', 'show']);
+Route::get('/apartments', ApartmentController::class)->only(['index', 'show']);
 
 
 // 🔒 Authenticated routes (POST, PUT, DELETE)
