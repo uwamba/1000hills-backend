@@ -19,6 +19,14 @@ class RoomController extends RestController
         return response()->json($hotels, 200);
     }
 
+    public function roomList()
+    {
+        $perPage = 10;
+        $hotels = Room::with('photos')->paginate($perPage);
+    
+        return response()->json($hotels, 200);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

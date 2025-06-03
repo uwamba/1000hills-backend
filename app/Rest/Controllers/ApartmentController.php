@@ -16,6 +16,11 @@ class ApartmentController extends RestController
         return ApartmentResource::collection(Apartment::with('photos')->get());
     }
 
+     public function apartmentList()
+    {
+        return ApartmentResource::collection(Apartment::with('photos')->get());
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

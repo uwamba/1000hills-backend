@@ -58,13 +58,22 @@ Route::apiResource('payments', PaymentController::class);
 
 Route::get('/booked-seats/{objectId}', [BookingController::class, 'getBookedSeats']);
 Route::post('/booking/ticket', [BookingController::class, 'bookingTicket']);
-Route::apiResource('apartments', ApartmentController::class);
+
 Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
 Route::apiResource('retreats', RetreatController::class);
 Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
+
+
+// example of client endpaoint
+
+Route::get('/client/rooms', [RoomController::class, 'roomList']);
+Route::get('/client/apartments', [ApartmentController::class, 'apartmentList']);
+
+
 // Authentication and Authorization Middleware example refer to this for other role protect routes
 Route::middleware('auth:api')->group(function () {
+   Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
    Route::apiResource('admins', AdminController::class);
