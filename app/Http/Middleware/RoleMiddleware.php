@@ -1,6 +1,4 @@
 <?php
-// app/Http/Middleware/RoleMiddleware.php
-
 namespace App\Http\Middleware;
 
 use Closure;
@@ -12,7 +10,7 @@ class RoleMiddleware
     {
         $user = Auth::user();
 
-        if (!$user || !in_array($user->role, $roles)) {
+        if (!$user || !$user->role || !in_array($user->role->name, $roles)) {
             abort(403, 'Unauthorized');
         }
 
