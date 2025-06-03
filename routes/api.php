@@ -65,8 +65,7 @@ Route::apiResource('retreats', RetreatController::class);
 Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 // Authentication and Authorization Middleware example refer to this for other role protect routes
-
-Route::middleware(['auth'])->group(function () {
+Route::middleware('auth:api')->group(function () {
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
    Route::apiResource('admins', AdminController::class);
