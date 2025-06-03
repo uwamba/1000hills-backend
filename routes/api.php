@@ -53,43 +53,35 @@ Route::post('/payments/momo/request', [PaymentController::class, 'requestMtnMomo
 
 
 // Common
-Route::apiResource('admins', AdminController::class);
-Route::apiResource('admin-manages', AdminManageController::class);
-Route::apiResource('photos', PhotoController::class);
+
+
 Route::apiResource('payments', PaymentController::class);
-Route::apiResource('accounts', AccountController::class);
+
 Route::get('/booked-seats/{objectId}', [BookingController::class, 'getBookedSeats']);
 Route::post('/booking/ticket', [BookingController::class, 'bookingTicket']);
-Route::apiResource('bookings', BookingController::class);
-Route::apiResource('clients', ClientController::class);
-
-
-// Hotels
-Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
-Route::apiResource('hotels', HotelController::class);
-
-Route::apiResource('rooms', RoomController::class);
-
-// Transport
-Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
-Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
-Route::apiResource('agencies', AgencyController::class);
-Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
-Route::apiResource('seat-types', SeatTypeController::class);
-Route::apiResource('buses', BusTicketController::class);
-Route::apiResource('journeys', JourneyController::class);
-
-// Apartments
 Route::apiResource('apartments', ApartmentController::class);
-
-// Retreats
+Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
 Route::apiResource('retreats', RetreatController::class);
-
-
-
+Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
+Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 // Authentication and Authorization Middleware example refer to this for other role protect routes
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
+   Route::apiResource('accounts', AccountController::class);
+   Route::apiResource('photos', PhotoController::class);
+   Route::apiResource('admins', AdminController::class);
+   Route::apiResource('admin-manages', AdminManageController::class);  
+   Route::apiResource('bookings', BookingController::class);
+   Route::apiResource('clients', ClientController::class);
+
+   Route::apiResource('hotels', HotelController::class);
+
+   Route::apiResource('rooms', RoomController::class);
+   Route::apiResource('agencies', AgencyController::class);
+   Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
+   Route::apiResource('seat-types', SeatTypeController::class);
+   Route::apiResource('buses', BusTicketController::class);
+   Route::apiResource('journeys', JourneyController::class);
    Route::apiResource('retreats', RetreatController::class);
 });
 
