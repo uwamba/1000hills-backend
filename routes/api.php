@@ -49,52 +49,37 @@ Route::post('/flutterwave/payment', [PaymentController::class, 'makePayment']);
 Route::post('/flutterwave/payment/webhook', [PaymentController::class, 'handleWebhook']);
 Route::post('/payments/momo/request', [PaymentController::class, 'requestMtnMomoPayment']);
 
+
+
+// Common
+
+
 Route::apiResource('payments', PaymentController::class);
+
 Route::get('/booked-seats/{objectId}', [BookingController::class, 'getBookedSeats']);
 Route::post('/booking/ticket', [BookingController::class, 'bookingTicket']);
+Route::apiResource('apartments', ApartmentController::class);
 Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
 Route::apiResource('retreats', RetreatController::class);
 Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
-
-
-// ✅ Public routes (GET only)
-Route::get('/accounts', AccountController::class)->only(['index', 'show']);
-Route::get('/photos', PhotoController::class)->only(['index', 'show']);
-Route::get('/admins', AdminController::class)->only(['index', 'show']);
-Route::get('/admin-manages', AdminManageController::class)->only(['index', 'show']);
-Route::get('/bookings', BookingController::class)->only(['index', 'show']);
-Route::get('/clients', ClientController::class)->only(['index', 'show']);
-Route::get('/hotels', HotelController::class)->only(['index', 'show']);
-Route::get('/rooms', RoomController::class)->only(['index', 'show']);
-Route::get('/agencies', AgencyController::class)->only(['index', 'show']);
-Route::get('/routes', TransportRouteController::class)->only(['index', 'show']);
-Route::get('/seat-types', SeatTypeController::class)->only(['index', 'show']);
-Route::get('/buses', BusTicketController::class)->only(['index', 'show']);
-Route::get('/journeys', JourneyController::class)->only(['index', 'show']);
-Route::get('/retreats', RetreatController::class)->only(['index', 'show']);
-Route::get('/apartments', ApartmentController::class)->only(['index', 'show']);
-
-
-// 🔒 Authenticated routes (POST, PUT, DELETE)
+// Authentication and Authorization Middleware example refer to this for other role protect routes
 Route::middleware('auth:api')->group(function () {
-    Route::apiResource('accounts', AccountController::class)->except(['index', 'show']);
-    Route::apiResource('photos', PhotoController::class)->except(['index', 'show']);
-    Route::apiResource('admins', AdminController::class)->except(['index', 'show']);
-    Route::apiResource('admin-manages', AdminManageController::class)->except(['index', 'show']);
-    Route::apiResource('bookings', BookingController::class)->except(['index', 'show']);
-    Route::apiResource('clients', ClientController::class)->except(['index', 'show']);
-    Route::apiResource('hotels', HotelController::class)->except(['index', 'show']);
-    Route::apiResource('rooms', RoomController::class)->except(['index', 'show']);
-    Route::apiResource('agencies', AgencyController::class)->except(['index', 'show']);
-    Route::apiResource('routes', TransportRouteController::class)->except(['index', 'show']);
-    Route::apiResource('seat-types', SeatTypeController::class)->except(['index', 'show']);
-    Route::apiResource('buses', BusTicketController::class)->except(['index', 'show']);
-    Route::apiResource('journeys', JourneyController::class)->except(['index', 'show']);
-    Route::apiResource('retreats', RetreatController::class)->except(['index', 'show']);
-    Route::apiResource('apartments', ApartmentController::class)->except(['index', 'show']);
+   Route::apiResource('accounts', AccountController::class);
+   Route::apiResource('photos', PhotoController::class);
+   Route::apiResource('admins', AdminController::class);
+   Route::apiResource('admin-manages', AdminManageController::class);  
+   Route::apiResource('bookings', BookingController::class);
+   Route::apiResource('clients', ClientController::class);
+   Route::apiResource('hotels', HotelController::class);
+   Route::apiResource('rooms', RoomController::class);
+   Route::apiResource('agencies', AgencyController::class);
+   Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
+   Route::apiResource('seat-types', SeatTypeController::class);
+   Route::apiResource('buses', BusTicketController::class);
+   Route::apiResource('journeys', JourneyController::class);
+   Route::apiResource('retreats', RetreatController::class);
 });
-
 
 Route::middleware(['auth', 'role:admin,editor'])->group(function () {
    Route::apiResource('retreats', RetreatController::class);
