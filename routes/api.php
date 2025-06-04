@@ -70,8 +70,7 @@ Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 Route::get('/client/rooms', [RoomController::class, 'roomList']);
 Route::get('/client/apartments', [ApartmentController::class, 'apartmentList']);
 Route::get('/client/retreats', [RetreatController::class, 'retreatList']);
-Route::get('/client/journeys', [RetreatController::class, 'journeyList']);
-Route::get('/client/feature-rooms', [RetreatController::class, 'journeyList']);
+Route::get('/client/journeys', [JourneyController::class, 'journeyList']);
 
 
 
