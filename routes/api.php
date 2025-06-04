@@ -94,7 +94,7 @@ Route::middleware('auth:api')->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin,editor'])->group(function () {
-   Route::apiResource('retreats', RetreatController::class);
+   Route::apiResource('retreatstest', RetreatController::class);
 });
 
 
