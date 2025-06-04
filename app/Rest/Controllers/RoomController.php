@@ -27,6 +27,14 @@ class RoomController extends RestController
         return response()->json($hotels, 200);
     }
 
+    public function featuredRoomList()
+    {
+        $hotels = Room::take(3)->get();
+
+    
+        return response()->json($hotels, 200);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
