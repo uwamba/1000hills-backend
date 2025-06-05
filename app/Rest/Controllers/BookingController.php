@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use App\Mail\PaymentLinkMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Journey;
+use App\Models\Retreat;
 
 use Illuminate\Support\Facades\Log;
 
@@ -108,7 +109,17 @@ class BookingController extends RestController
             }
             Log::info('Journey found', ['journey_id' => $object->id]);
 
-        } else {
+        } 
+        elseif ($objectType === 'event') {
+            $object = Retreat::find($objectId);
+            if (!$object) {
+                Log::error('event not found', ['object_id' => $objectId]);
+                return response()->json(['message' => 'event not found'], 404);
+            }
+            Log::info('event found', ['journey_id' => $object->id]);
+
+        }
+        else {
             Log::error('Unsupported object_type', ['object_type' => $objectType]);
             return response()->json(['message' => 'Unsupported object type'], 400);
         }
