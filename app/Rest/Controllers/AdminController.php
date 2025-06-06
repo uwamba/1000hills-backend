@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
+
+
 use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
@@ -33,38 +36,41 @@ class AdminController extends RestController
         return response()->json(['admin' => $admin]);
     }
 
-    public function store(Request $request)
+
+
+public function store(Request $request)
 {
     Log::debug('Admin creation request received.', $request->all());
 
-    $request->validate([
-        'names'     => 'required|string',
-        'email'     => 'required|email|unique:admins',
-        'address'   => 'required|string',
-        'phone'     => 'required|string',
-        'role'      => 'required|string',
-        'password'  => 'required|string|min:6',
-        'object'    => 'required|string',
-        'object_id' => 'required|string',
-        'is_active' => 'required|string',
-    ]);
-
     try {
+        $validated = $request->validate([
+            'names'     => 'required|string',
+            'email'     => 'required|email|unique:admins',
+            'address'   => 'required|string',
+            'phone'     => 'required|string',
+            'role'      => 'required|string',
+            'password'  => 'required|string|min:6',
+            'object'    => 'required|string',
+            'object_id' => 'required|string',
+            'is_active' => 'required|string',
+        ]);
+
         $admin = Admin::create([
-            'names'     => $request->names,
-            'email'     => $request->email,
-            'address'   => $request->address,
-            'phone'     => $request->phone,
-            'role'      => $request->role,
-            'password'  => Hash::make($request->password), // convert string to bool
+            'names'     => $validated['names'],
+            'email'     => $validated['email'],
+            'address'   => $validated['address'],
+            'phone'     => $validated['phone'],
+            'role'      => $validated['role'],
+            'password'  => Hash::make($validated['password']),
+            'is_active' => $validated['is_active'] === 'true' || $validated['is_active'] == 1,
         ]);
 
         Log::debug('Admin created successfully.', ['admin_id' => $admin->id]);
 
         $adminManage = AdminManage::create([
             'admin_id'  => $admin->id,
-            'object'    => $request->object,
-            'object_id' => $request->object_id,
+            'object'    => $validated['object'],
+            'object_id' => $validated['object_id'],
         ]);
 
         Log::debug('AdminManage record created.', ['admin_manage_id' => $adminManage->id]);
@@ -73,8 +79,17 @@ class AdminController extends RestController
             'message' => 'Admin created and linked to object',
             'admin'   => $admin
         ]);
+    } catch (ValidationException $ve) {
+        Log::warning('Validation failed during admin creation.', [
+            'errors' => $ve->errors()
+        ]);
+
+        return response()->json([
+            'message' => 'Validation failed',
+            'errors'  => $ve->errors()
+        ], 422);
     } catch (\Exception $e) {
-        Log::error('Error creating admin or linking object.', [
+        Log::error('Unexpected error during admin creation.', [
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
@@ -85,6 +100,7 @@ class AdminController extends RestController
         ], 500);
     }
 }
+
     public function update(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
