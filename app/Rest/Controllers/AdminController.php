@@ -52,7 +52,8 @@ public function store(Request $request)
             'password'  => 'required|string|min:6',
             'object'    => 'required|string',
             'object_id' => 'required|string',
-            'is_active' => 'required|string',
+            'is_active' => 'required|boolean',
+
         ]);
 
         $admin = Admin::create([
