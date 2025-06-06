@@ -11,7 +11,7 @@ class AdminManage extends Model
 
     protected $table = 'admin_manage';
 
-    protected $fillable = ['admin_id', 'object_type', 'object_id', 'role_id'];
+    protected $fillable = ['admin_id', 'object', 'object_id', 'role_id'];
 
     public function admin()
     {
