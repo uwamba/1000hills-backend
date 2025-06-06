@@ -7,6 +7,7 @@ use App\Models\AdminManage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
@@ -34,6 +35,8 @@ class AdminController extends RestController
 
     public function store(Request $request)
 {
+    Log::debug('Admin creation request received.', $request->all());
+
     $request->validate([
         'names'     => 'required|string',
         'email'     => 'required|email|unique:admins',
@@ -41,31 +44,48 @@ class AdminController extends RestController
         'phone'     => 'required|string',
         'role'      => 'required|string',
         'password'  => 'required|string|min:6',
-        'object'    => 'required|string',       // e.g., 'hotel'
+        'object'    => 'required|string',
         'object_id' => 'required|string',
-        'is_active' => 'required|string',     // e.g., '12'
+        'is_active' => 'required|string',
     ]);
 
-    // Create the admin
-    $admin = Admin::create([
-        'names'     => $request->names,
-        'email'     => $request->email,
-        'address'   => $request->address,
-        'phone'     => $request->phone,
-        'role'      => $request->role,
-        'password'  => Hash::make($request->password),
-    ]);
+    try {
+        $admin = Admin::create([
+            'names'     => $request->names,
+            'email'     => $request->email,
+            'address'   => $request->address,
+            'phone'     => $request->phone,
+            'role'      => $request->role,
+            'password'  => Hash::make($request->password),
+            'is_active' => $request->is_active === 'true' || $request->is_active == 1, // convert string to bool
+        ]);
 
-    // Associate the admin with the object they manage
-    AdminManage::create([
-        'admin_id'  => $admin->id,
-        'object'    => $request->object,
-        'object_id' => $request->object_id,
-    ]);
+        Log::debug('Admin created successfully.', ['admin_id' => $admin->id]);
 
-    return response()->json(['message' => 'Admin created and linked to object', 'admin' => $admin]);
+        $adminManage = AdminManage::create([
+            'admin_id'  => $admin->id,
+            'object'    => $request->object,
+            'object_id' => $request->object_id,
+        ]);
+
+        Log::debug('AdminManage record created.', ['admin_manage_id' => $adminManage->id]);
+
+        return response()->json([
+            'message' => 'Admin created and linked to object',
+            'admin'   => $admin
+        ]);
+    } catch (\Exception $e) {
+        Log::error('Error creating admin or linking object.', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'message' => 'Failed to create admin',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
 }
-
     public function update(Request $request, $id)
     {
         $admin = Admin::findOrFail($id);
