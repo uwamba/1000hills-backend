@@ -95,6 +95,21 @@ class RoomController extends RestController
             'similarRooms' => $similarRooms
         ]);
     }
+     public function roomDetails($id)
+    {
+        $room = Room::with('photos', 'hotel', 'updatedBy', 'deletedBy')
+            ->findOrFail($id);
+
+        $similarRooms = Room::where('id', '!=', $id)
+            ->limit(6)
+            ->get();
+
+        return response()->json([
+            'room' => $room,
+            'similarRooms' => $similarRooms
+        ]);
+    }
+
 
     public function update(Request $request, Room $room)
     {
