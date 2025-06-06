@@ -15,6 +15,13 @@ use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
 {
+       public function index()
+{
+    $perPage = 10; // You can change this to any number or get it from query params
+    $hotels = Admin ::paginate($perPage);
+
+    return response()->json($hotels, 200);
+}
     public function login(Request $request)
     {
         $request->validate([

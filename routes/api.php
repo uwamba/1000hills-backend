@@ -80,7 +80,6 @@ Route::middleware('auth:api')->group(function () {
    Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
-   Route::apiResource('admins', AdminController::class);
    Route::apiResource('admin-manages', AdminManageController::class);  
    Route::apiResource('bookings', BookingController::class);
    Route::apiResource('clients', ClientController::class);
@@ -102,6 +101,7 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
 Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminController::class, 'login']);
     Route::post('/', [AdminController::class, 'store']); // Add new
+    Route::get(   '/', [AdminController::class, 'index']); // List all
     Route::put('/{id}', [AdminController::class, 'update']);
     Route::delete('/{id}', [AdminController::class, 'destroy']);
     Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
