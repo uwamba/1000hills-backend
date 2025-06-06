@@ -56,8 +56,7 @@ class AdminController extends RestController
             'address'   => $request->address,
             'phone'     => $request->phone,
             'role'      => $request->role,
-            'password'  => Hash::make($request->password),
-            'is_active' => $request->is_active === 'true' || $request->is_active == 1, // convert string to bool
+            'password'  => Hash::make($request->password), // convert string to bool
         ]);
 
         Log::debug('Admin created successfully.', ['admin_id' => $admin->id]);
