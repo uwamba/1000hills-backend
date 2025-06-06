@@ -42,7 +42,8 @@ class AdminController extends RestController
         'role'      => 'required|string',
         'password'  => 'required|string|min:6',
         'object'    => 'required|string',       // e.g., 'hotel'
-        'object_id' => 'required|string',       // e.g., '12'
+        'object_id' => 'required|string',
+        'is_active' => 'required|string',     // e.g., '12'
     ]);
 
     // Create the admin

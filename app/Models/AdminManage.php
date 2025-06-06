@@ -9,6 +9,8 @@ class AdminManage extends Model
 {
     use HasFactory;
 
+    protected $table = 'admin_manage';
+
     protected $fillable = ['admin_id', 'object_type', 'object_id', 'role_id'];
 
     public function admin()
