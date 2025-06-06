@@ -65,7 +65,7 @@ Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 Route::get('/apartments/names', [ApartmentController::class, 'getAllApartmentNames']);
 
-
+Route::apiResource('bookings', BookingController::class);
 // example of client endpaoint
 
 Route::get('/client/rooms', [RoomController::class, 'roomList']);
@@ -83,7 +83,7 @@ Route::middleware('auth:api')->group(function () {
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
    Route::apiResource('admin-manages', AdminManageController::class);  
-   Route::apiResource('bookings', BookingController::class);
+
    Route::apiResource('clients', ClientController::class);
    Route::apiResource('hotels', HotelController::class);
    Route::apiResource('rooms', RoomController::class);
