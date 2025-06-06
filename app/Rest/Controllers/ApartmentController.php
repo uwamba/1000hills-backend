@@ -21,6 +21,13 @@ class ApartmentController extends RestController
         return ApartmentResource::collection(Apartment::with('photos')->get());
     }
 
+     public function getAllApartmentNames()
+{
+    $apart = Apartment::select('id', 'name')->get();
+
+    return response()->json($apart);
+}
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -98,6 +98,18 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
 });
 
 
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AdminController::class, 'login']);
+    Route::post('/', [AdminController::class, 'store']); // Add new
+    Route::put('/{id}', [AdminController::class, 'update']);
+    Route::delete('/{id}', [AdminController::class, 'destroy']);
+    Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
+    Route::post('/{id}/activate', [AdminController::class, 'activate']);
+    Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']);
+});
+
+
+
 
 
 

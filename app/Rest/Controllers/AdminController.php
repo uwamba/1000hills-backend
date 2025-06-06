@@ -2,55 +2,114 @@
 
 namespace App\Rest\Controllers;
 
-use App\Rest\Controller as RestController;
 use App\Models\Admin;
-use App\Rest\Resources\AdminResource;
+use App\Models\AdminManage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
 {
-    public function index()
+    public function login(Request $request)
     {
-        $admins = Admin::all();
-        return AdminResource::collection($admins);
+        $request->validate([
+            'email' => 'required|string|email',
+            'password' => 'required|string',
+        ]);
+
+        $admin = Admin::where('email', $request->email)->first();
+
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
+            return response()->json(['error' => 'Invalid credentials'], 401);
+        }
+
+        if (!$admin->is_active) {
+            return response()->json(['error' => 'Account is deactivated'], 403);
+        }
+
+        // Normally generate token here
+        return response()->json(['admin' => $admin]);
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:admins',
-            'address' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'role' => 'required|string|max:50',
-        ]);
+{
+    $request->validate([
+        'names'     => 'required|string',
+        'email'     => 'required|email|unique:admins',
+        'address'   => 'required|string',
+        'phone'     => 'required|string',
+        'role'      => 'required|string',
+        'password'  => 'required|string|min:6',
+        'object'    => 'required|string',       // e.g., 'hotel'
+        'object_id' => 'required|string',       // e.g., '12'
+    ]);
 
-        $admin = Admin::create($validated);
-        return new AdminResource($admin);
+    // Create the admin
+    $admin = Admin::create([
+        'names'     => $request->names,
+        'email'     => $request->email,
+        'address'   => $request->address,
+        'phone'     => $request->phone,
+        'role'      => $request->role,
+        'password'  => Hash::make($request->password),
+    ]);
+
+    // Associate the admin with the object they manage
+    AdminManage::create([
+        'admin_id'  => $admin->id,
+        'object'    => $request->object,
+        'object_id' => $request->object_id,
+    ]);
+
+    return response()->json(['message' => 'Admin created and linked to object', 'admin' => $admin]);
+}
+
+    public function update(Request $request, $id)
+    {
+        $admin = Admin::findOrFail($id);
+
+        $admin->update($request->only(['names', 'email', 'address', 'phone', 'role']));
+
+        return response()->json(['message' => 'Admin updated', 'admin' => $admin]);
     }
 
-    public function show(Admin $admin)
+    public function destroy($id)
     {
-        return new AdminResource($admin);
-    }
-
-    public function update(Request $request, Admin $admin)
-    {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'email' => 'sometimes|required|string|email|max:255|unique:admins,email,' . $admin->id,
-            'address' => 'sometimes|required|string|max:255',
-            'phone' => 'sometimes|required|string|max:20',
-            'role' => 'sometimes|required|string|max:50',
-        ]);
-
-        $admin->update($validated);
-        return new AdminResource($admin);
-    }
-
-    public function destroy($admin)
-    {
+        $admin = Admin::findOrFail($id);
         $admin->delete();
-        return response()->json(null, 204);
+
+        return response()->json(['message' => 'Admin deleted']);
+    }
+
+    public function resetPassword(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed'
+        ]);
+
+        $admin = Admin::findOrFail($id);
+        $admin->password = Hash::make($request->password);
+        $admin->save();
+
+        return response()->json(['message' => 'Password reset successfully']);
+    }
+
+    public function activate($id)
+    {
+        $admin = Admin::findOrFail($id);
+        $admin->is_active = true;
+        $admin->save();
+
+        return response()->json(['message' => 'Admin account activated']);
+    }
+
+    public function deactivate($id)
+    {
+        $admin = Admin::findOrFail($id);
+        $admin->is_active = false;
+        $admin->save();
+
+        return response()->json(['message' => 'Admin account deactivated']);
     }
 }
