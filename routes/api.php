@@ -63,6 +63,7 @@ Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
 Route::apiResource('retreats', RetreatController::class);
 Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
+Route::get('/apartments/names', [ApartmentController::class, 'getAllApartmentNames']);
 
 
 // example of client endpaoint
@@ -105,7 +106,7 @@ Route::prefix('admin')->group(function () {
     Route::delete('/{id}', [AdminController::class, 'destroy']);
     Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
     Route::post('/{id}/activate', [AdminController::class, 'activate']);
-    Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']);
+    Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']); 
 });
 
 
