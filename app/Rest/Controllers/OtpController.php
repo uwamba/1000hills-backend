@@ -77,6 +77,7 @@ public function verify_new(Request $request)
 
         // ✅ Authenticate the client
         Auth::login($client); // optional: ensures the auth()->user() is set
+        
 
         // ✅ Generate Passport token
         $token = $client->createToken('OTP Login')->accessToken;
