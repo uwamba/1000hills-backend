@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
-
+use Illuminate\Support\Facades\Auth;
 use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
@@ -24,23 +24,28 @@ class AdminController extends RestController
 }
     public function login(Request $request)
     {
+       
+
+
         $request->validate([
-            'email' => 'required|string|email',
+            'email'    => 'required|string|email',
             'password' => 'required|string',
         ]);
-
-        $admin = Admin::where('email', $request->email)->first();
-
-        if (!$admin || !Hash::check($request->password, $admin->password)) {
+         $admin = Admin::where('email', $request->email)->first();
+         if (!$admin || !Hash::check($request->password, $admin->password)) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
-
         if (!$admin->is_active) {
             return response()->json(['error' => 'Account is deactivated'], 403);
         }
+        $user = Auth::user();
+        $token = $user->createToken('API Token')->accessToken;
 
-        // Normally generate token here
-        return response()->json(['admin' => $admin]);
+        return response()->json([
+            'message' => 'Login successful',
+            'user'    => $user,
+            'token'   => $token,
+        ]);
     }
 
 
