@@ -41,8 +41,7 @@ class BookingController extends RestController
 
     public function roomBookings()
     {
-        $roomBookings = Booking::forRooms()
-            ->with(['room', 'client'])
+        $roomBookings = Booking::with(['room', 'client'])
             ->get();
 
         return response()->json([
