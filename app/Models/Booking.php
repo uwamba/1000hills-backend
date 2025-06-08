@@ -39,4 +39,10 @@ class Booking extends Model
     {
         return $this->belongsTo(Room::class, 'object_id')->where('object_type', 'room');
     }
+
+    public function scopeForRooms($query)
+{
+    return $query->where('object_type', 'room');
+}
+
 }
