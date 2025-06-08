@@ -42,7 +42,10 @@ class Booking extends Model
 
     public function scopeForRooms($query)
 {
-    return $query->where('object_type', 'room');
+    return $query->where('object_type', 'booking')
+                 ->whereHasMorph('object', [Room::class], function ($query) {
+                     $query->where('object_type', 'room');
+                 });
 }
 
 }

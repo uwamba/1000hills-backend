@@ -79,9 +79,6 @@ class Room extends Model
     {
         return $this->morphMany(Booking::class, 'object');
     }
-    public function scopeForRooms($query)
-    {
-        return $query->where('object_type', 'room');
-    }
+    
 
 }
