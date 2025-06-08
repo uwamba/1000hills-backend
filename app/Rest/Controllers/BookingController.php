@@ -29,6 +29,7 @@ use Flutterwave\Payments\Data\Currency;
 use Bmatovu\MtnMomo\Products\Collection;
 use Bmatovu\MtnMomo\Exceptions\CollectionRequestException;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 
 class BookingController extends RestController
@@ -58,21 +59,36 @@ class BookingController extends RestController
         Log::info('Booking.store called with payload: ' . json_encode($request->all()));
 
         // Validate incoming request
+         try {
         $validated = $request->validate([
-            'from_date_time' => 'required|date',
-            'to_date_time' => 'required|date|after:from_date_time',
-            'email' => 'required|email',
-            'names' => 'required|string',
-            'country' => 'required|string',
-            'phone' => 'required|string',
-            'object_type' => 'required|string|max:255',
-            'object_id' => 'required',
-            'amount_to_pay' => 'required',
-            'status' => 'nullable|string|max:50',
-            'payment_method' => 'required|string',
-            'momo_number' => 'nullable|string|max:20',
-
+            'from_date_time'   => 'required|date',
+            'to_date_time'     => 'required|date|after:from_date_time',
+            'email'            => 'required|email',
+            'names'            => 'required|string',
+            'country'          => 'required|string',
+            'phone'            => 'required|string',
+            'object_type'      => 'required|string|max:255',
+            'object_id'        => 'required',
+            'amount_to_pay'    => 'required',
+            'status'           => 'nullable|string|max:50',
+            'payment_method'   => 'required|string',
+            'momo_number'      => 'nullable|string|max:20',
         ]);
+
+        // continue with storing the data...
+
+    } catch (ValidationException $e) {
+        Log::error('Validation failed:', [
+            'errors' => $e->errors(),
+            'input'  => $request->all(),
+        ]);
+
+        return response()->json([
+            'message' => 'Validation error',
+            'errors'  => $e->errors(),
+        ], 422);
+    }
+        
 
         Log::info('Validation passed', $validated);
 
