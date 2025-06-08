@@ -209,44 +209,60 @@ public function requestMtnMomoPayment(Request $request)
 
 
 
-public function checkMomoStatus($referenceId)
-{
-    $collection = new Collection();
 
-    try {
-        $status = $collection->getTransactionStatus($referenceId);
+public function checkStatus(Payment $payment)
+    {
+        if ($payment->type === 'momo') {
+            return $this->checkMomoStatus($payment->transaction_id);
+        }
 
-        return response()->json([
-            'success' => true,
-            'status' => $status, // contains 'status', 'amount', 'currency', etc.
-        ]);
-    } catch (\Exception $e) {
+        if ($payment->type === 'flutterwave') {
+            return $this->checkFlutterwaveStatus($payment->transaction_id);
+        }
+
         return response()->json([
             'success' => false,
-            'message' => 'Failed to check status: ' . $e->getMessage(),
-        ], 500);
+            'message' => 'Unsupported payment type',
+        ], 400);
     }
-}
 
-public function checkFlutterwaveStatus($transactionId)
-{
-    $secretKey = env('FLW_SECRET_KEY');
+    protected function checkMomoStatus(string $referenceId)
+    {
+        try {
+            $collection = new Collection();
+            $status = $collection->getTransactionStatus($referenceId);
 
-    $response = Http::withToken($secretKey)
-        ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
+            return response()->json([
+                'success' => true,
+                'data' => $status,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'MoMo error: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 
-    if ($response->successful()) {
+    protected function checkFlutterwaveStatus(string $transactionId)
+    {
+        $response = Http::withToken(env('FLW_SECRET_KEY'))
+            ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
+
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'data' => $response->json()['data'],
+            ]);
+        }
+
         return response()->json([
-            'success' => true,
-            'data' => $response->json()['data'],
-        ]);
+            'success' => false,
+            'message' => $response->json()['message'] ?? 'Failed to verify Flutterwave transaction.',
+        ], $response->status());
     }
 
-    return response()->json([
-        'success' => false,
-        'message' => $response->json()['message'] ?? 'Failed to verify Flutterwave transaction.',
-    ], $response->status());
-}
+
 
   
 }
