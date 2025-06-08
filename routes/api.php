@@ -65,7 +65,7 @@ Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames
 Route::get('/agencies/names', [AgencyController::class, 'getAllAgencyNames']);
 Route::get('/apartments/names', [ApartmentController::class, 'getAllApartmentNames']);
 
-Route::apiResource('bookings', BookingController::class);
+
 // example of client endpaoint
 
 Route::get('/client/rooms', [RoomController::class, 'roomList']);
@@ -79,6 +79,9 @@ Route::get('/client/journeys', [JourneyController::class, 'journeyList']);
 
 // Authentication and Authorization Middleware example refer to this for other role protect routes
 Route::middleware('auth:api')->group(function () {
+
+   Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
+
    Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
@@ -112,7 +115,7 @@ Route::prefix('admin')->group(function () {
 });
 
 
-
+Route::apiResource('bookings', BookingController::class);
 
 
 
