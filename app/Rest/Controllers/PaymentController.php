@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Rest\Resources\PaymentResource;
 use App\Jobs\ProcessPayment;
-
+use Illuminate\Support\Facades\Log;
 use Flutterwave\Payments\Facades\Flutterwave;
 use Flutterwave\Payments\Data\Currency;
 
@@ -214,6 +214,11 @@ public function checkStatus($paymentId)
 {
     $payment = Payment::find($paymentId);
 
+     Log::error('Validation failed:', [
+            'data'  => $payment,
+        ]);
+
+
     if (!$payment) {
         return response()->json([
             'success' => false,
@@ -222,10 +227,18 @@ public function checkStatus($paymentId)
     }
 
     if ($payment->type === 'momo') {
+        Log::error('Validation failed:', [
+            'type'  => "momo",
+            'transaction_id' => $payment->transaction_id,
+        ]);
         return $this->checkMomoStatus($payment->transaction_id);
     }
 
     if ($payment->type === 'flutterwave') {
+         Log::error('Validation failed:', [
+            'type'  => "flutterwave",
+            'transaction_id' => $payment->transaction_id,
+        ]);
         return $this->checkFlutterwaveStatus($payment->transaction_id);
     }
 
