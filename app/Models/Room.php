@@ -74,4 +74,14 @@ class Room extends Model
         return $this->hasMany(Photo::class, 'object_id')
             ->where('object_type', 'room');
     }
+
+    public function bookings()
+    {
+        return $this->morphMany(Booking::class, 'object');
+    }
+    public function scopeForRooms($query)
+    {
+        return $query->where('object_type', 'room');
+    }
+
 }

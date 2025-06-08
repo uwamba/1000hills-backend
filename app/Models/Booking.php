@@ -30,4 +30,13 @@ class Booking extends Model
     {
         return $this->morphTo();
     }
+
+    // Polymorphic relation to Room or other objects
+    
+
+    // Direct relation if object_type is 'room'
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'object_id')->where('object_type', 'room');
+    }
 }

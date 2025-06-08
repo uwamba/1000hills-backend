@@ -39,6 +39,18 @@ class BookingController extends RestController
         return BookingResource::collection($bookings);
     }
 
+    public function roomBookings()
+    {
+        $roomBookings = Booking::forRooms()
+            ->with(['room', 'client'])
+            ->get();
+
+        return response()->json([
+            'message' => 'Room bookings retrieved successfully',
+            'data' => $roomBookings,
+        ]);
+    }
+
 
 
     public function store(Request $request)
