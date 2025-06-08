@@ -52,6 +52,9 @@ Route::post('/payments/momo/request', [PaymentController::class, 'requestMtnMomo
 
 
 // Common
+Route::get('/payments/momo/{ref}/status', [PaymentController::class, 'checkMomoStatus']);
+Route::get('/payments/flutterwave/{id}/status', [PaymentController::class, 'checkFlutterwaveStatus']);
+Route::get('/payments/{payment}/status', [PaymentController::class, 'checkStatus']);
 
 
 Route::apiResource('payments', PaymentController::class);

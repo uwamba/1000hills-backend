@@ -153,7 +153,7 @@ class BookingController extends RestController
                 'client_id' => $client->id,
                 'amount_paid' => $booking->amount_to_pay, // Initial amount
                 'account' => $client->email,
-                'type' => 'booking',
+                'type' => $request->payment_method,
                 'status' => 'pending',
                 'created_by' => Auth::id(),
             ]);

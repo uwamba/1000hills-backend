@@ -17,12 +17,12 @@ use Flutterwave\Payments\Data\Currency;
 use Bmatovu\MtnMomo\Products\Collection;
 use Bmatovu\MtnMomo\Exceptions\CollectionRequestException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 class PaymentController extends RestController
 {
     public function index()
     {
-        $perPage = 10; // You can change or make it dynamic via query params
-        $payments = Payment::paginate($perPage);
+        $payments = Payment::with('client')->get();
 
         return PaymentResource::collection($payments);
     }
@@ -206,6 +206,47 @@ public function requestMtnMomoPayment(Request $request)
 
         return new PaymentResource($payment);
     }
+
+
+
+public function checkMomoStatus($referenceId)
+{
+    $collection = new Collection();
+
+    try {
+        $status = $collection->getTransactionStatus($referenceId);
+
+        return response()->json([
+            'success' => true,
+            'status' => $status, // contains 'status', 'amount', 'currency', etc.
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to check status: ' . $e->getMessage(),
+        ], 500);
+    }
+}
+
+public function checkFlutterwaveStatus($transactionId)
+{
+    $secretKey = env('FLW_SECRET_KEY');
+
+    $response = Http::withToken($secretKey)
+        ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
+
+    if ($response->successful()) {
+        return response()->json([
+            'success' => true,
+            'data' => $response->json()['data'],
+        ]);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => $response->json()['message'] ?? 'Failed to verify Flutterwave transaction.',
+    ], $response->status());
+}
 
   
 }
