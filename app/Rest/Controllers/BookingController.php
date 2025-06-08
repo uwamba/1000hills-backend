@@ -164,7 +164,7 @@ class BookingController extends RestController
                 'status' => $validated['status'] ?? "pending",
             ]);
 
-            $payment = Payment::create([
+            $paymentModel = Payment::create([
                 'transaction_id' => $booking->id, // Placeholder until payment is made
                 'client_id' => $client->id,
                 'amount_paid' => $booking->amount_to_pay, // Initial amount
@@ -207,6 +207,9 @@ class BookingController extends RestController
             // Now you can safely access it like an array
             $paymentLink = $payment['payment_link'];
 
+              $paymentModel->status = 'success';
+              $paymentModel->save();
+
             Log::info("Generated front‑end payment link: {$paymentLink}");
 
 
@@ -225,7 +228,8 @@ class BookingController extends RestController
             */
             $paymentLink = "{$frontend}/payment?{$params}";
             Log::info("Generated front‑end payment link: {$paymentLink}");
-
+            $paymentModel->status = 'success';
+            $paymentModel->save();
             Log::info("Requested MTN MoMo payment link: {$paymentLink}");
         } else {
             Log::error('Unsupported payment method', ['method' => $request->payment_method]);

@@ -231,7 +231,7 @@ public function checkStatus($paymentId)
             'type'  => "momo",
             'transaction_id' => $payment->transaction_id,
         ]);
-        return $this->checkMomoStatus($payment->transaction_id);
+        return $this->checkMomoStatus($payment->transaction_id, $payment);
     }
 
     if ($payment->type === 'flutterwave') {
@@ -239,7 +239,7 @@ public function checkStatus($paymentId)
             'type'  => "flutterwave",
             'transaction_id' => $payment->transaction_id,
         ]);
-        return $this->checkFlutterwaveStatus($payment->transaction_id);
+        return $this->checkFlutterwaveStatus($payment->transaction_id, $payment);
     }
 
     return response()->json([
@@ -248,11 +248,16 @@ public function checkStatus($paymentId)
     ], 400);
 }
 
-    protected function checkMomoStatus(string $referenceId)
+    protected function checkMomoStatus(string $referenceId,  $payment)
     {
         try {
             $collection = new Collection();
             $status = $collection->getTransactionStatus($referenceId);
+
+            if (isset($status['status']) && strtolower($status['status']) === 'successful') {
+            $payment->status = 'success';
+            $payment->save();
+        }
 
             return response()->json([
                 'success' => true,
@@ -266,12 +271,17 @@ public function checkStatus($paymentId)
         }
     }
 
-    protected function checkFlutterwaveStatus(string $transactionId)
+    protected function checkFlutterwaveStatus(string $transactionId,  $payment)
     {
         $response = Http::withToken(env('FLW_SECRET_KEY'))
             ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
 
         if ($response->successful()) {
+             $data = $response->json()['data'] ?? [];
+            if (isset($data['status']) && strtolower($data['status']) === 'successful') {
+            $payment->status = 'success';
+            $payment->save();
+            }
             return response()->json([
                 'success' => true,
                 'data' => $response->json()['data'],
