@@ -35,10 +35,10 @@ class Booking extends Model
     
 
     // Direct relation if object_type is 'room'
-    public function room()
-    {
-        return $this->belongsTo(Room::class, 'object_id')->where('object_type', 'room');
-    }
+   public function room()
+{
+    return $this->belongsTo(Room::class, 'object_id');
+}
 
 
  public function scopeForRooms($query)
