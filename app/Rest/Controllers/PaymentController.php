@@ -210,21 +210,30 @@ public function requestMtnMomoPayment(Request $request)
 
 
 
-public function checkStatus(Payment $payment)
-    {
-        if ($payment->type === 'momo') {
-            return $this->checkMomoStatus($payment->transaction_id);
-        }
+public function checkStatus($paymentId)
+{
+    $payment = Payment::find($paymentId);
 
-        if ($payment->type === 'flutterwave') {
-            return $this->checkFlutterwaveStatus($payment->transaction_id);
-        }
-
+    if (!$payment) {
         return response()->json([
             'success' => false,
-            'message' => 'Unsupported payment type',
-        ], 400);
+            'message' => 'Payment not found',
+        ], 404);
     }
+
+    if ($payment->type === 'momo') {
+        return $this->checkMomoStatus($payment->transaction_id);
+    }
+
+    if ($payment->type === 'flutterwave') {
+        return $this->checkFlutterwaveStatus($payment->transaction_id);
+    }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Unsupported payment type',
+    ], 400);
+}
 
     protected function checkMomoStatus(string $referenceId)
     {
