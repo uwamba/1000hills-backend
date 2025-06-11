@@ -16,10 +16,52 @@ class ApartmentController extends RestController
         return ApartmentResource::collection(Apartment::with('photos')->get());
     }
 
-     public function apartmentList()
-    {
-        return ApartmentResource::collection(Apartment::with('photos')->get());
+     public function apartmentList(Request $request)
+{
+    $query = Apartment::with('photos');
+
+    // Determine which price to filter: night or month
+    $priceField = match ($request->input('price_type')) {
+        'month' => 'price_per_month',
+        default => 'price_per_night', // fallback to nightly
+    };
+
+    // Price filtering
+    if ($request->filled('min_price')) {
+        $minPrice = $request->input('min_price');
+        $query->where($priceField, '>=', $minPrice);
+        \Log::debug("Filtering apartments with $priceField >= $minPrice");
     }
+
+    if ($request->filled('max_price')) {
+        $maxPrice = $request->input('max_price');
+        $query->where($priceField, '<=', $maxPrice);
+        \Log::debug("Filtering apartments with $priceField <= $maxPrice");
+    }
+
+    // Availability filtering
+   if ($request->filled('from_date') && $request->filled('to_date')) {
+    $from = $request->input('from_date');
+    $to = $request->input('to_date');
+
+    $query->whereRaw("
+        NOT EXISTS (
+            SELECT 1 FROM bookings
+            WHERE bookings.object_type = 'room'
+              AND bookings.object_id = rooms.id
+              AND (
+                  (bookings.from_date_time BETWEEN ? AND ?)
+                  OR (bookings.to_date_time BETWEEN ? AND ?)
+                  OR (bookings.from_date_time <= ? AND bookings.to_date_time >= ?)
+              )
+        )
+    ", [$from, $to, $from, $to, $from, $to]);
+}
+
+
+    return ApartmentResource::collection($query->get());
+}
+
 
      public function getAllApartmentNames()
 {
