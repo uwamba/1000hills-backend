@@ -77,7 +77,7 @@ class Room extends Model
 
     public function bookings()
     {
-        return $this->morphMany(Booking::class, 'object_id')
+        return $this->morphMany(Booking::class, 'object')
             ->where('object_type', 'room');
     }
     
