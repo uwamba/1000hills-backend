@@ -51,16 +51,17 @@ if ($request->filled('from_date') && $request->filled('to_date')) {
     Log::debug("Filtering available rooms between: $from and $to");
 
     $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
-        $q->where('object_type', 'room') // This is CRUCIAL for morphMany relation
-          ->where(function ($subQuery) use ($from, $to) {
-              $subQuery->whereBetween('from_date_time', [$from, $to])
-                       ->orWhereBetween('to_date_time', [$from, $to])
-                       ->orWhere(function ($q2) use ($from, $to) {
-                           $q2->where('from_date_time', '<=', $from)
-                              ->where('to_date_time', '>=', $to);
-                       });
-          });
-    });
+    $q->where('object_type', 'room')
+      ->where(function ($subQuery) use ($from, $to) {
+          $subQuery->whereBetween('from_date_time', [$from, $to])
+                   ->orWhereBetween('to_date_time', [$from, $to])
+                   ->orWhere(function ($q2) use ($from, $to) {
+                       $q2->where('from_date_time', '<=', $from)
+                          ->where('to_date_time', '>=', $to);
+                   });
+      });
+});
+
 }
 else {
         Log::debug("No date filter applied");
