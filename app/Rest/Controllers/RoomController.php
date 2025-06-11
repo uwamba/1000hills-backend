@@ -52,11 +52,11 @@ public function roomList(Request $request)
 
         $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
             $q->where(function ($subQuery) use ($from, $to) {
-                $subQuery->whereBetween('checkin', [$from, $to])
-                    ->orWhereBetween('checkout', [$from, $to])
+                $subQuery->whereBetween('from_date_time', [$from, $to])
+                    ->orWhereBetween('to_date_time', [$from, $to])
                     ->orWhere(function ($q2) use ($from, $to) {
-                        $q2->where('checkin', '<=', $from)
-                           ->where('checkout', '>=', $to);
+                        $q2->where('from_date_time', '<=', $from)
+                           ->where('to_date_time', '>=', $to);
                     });
             });
         });
