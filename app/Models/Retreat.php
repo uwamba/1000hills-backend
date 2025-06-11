@@ -56,4 +56,9 @@ class Retreat extends Model
         return $this->hasMany(Photo::class, 'object_id')
                     ->where('object_type', 'retreat');
     }
+     public function bookings()
+    {
+        return $this->morphMany(Booking::class, 'object')
+            ->where('object_type', 'event');
+    }
 }

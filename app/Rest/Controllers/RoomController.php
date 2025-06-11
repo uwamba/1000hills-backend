@@ -14,7 +14,7 @@ class RoomController extends RestController
 {
     public function index()
     {
-        $perPage = 10;
+        $perPage = 50;
         $hotels = Room::with('photos')->paginate($perPage);
 
         return response()->json($hotels, 200);
@@ -45,12 +45,12 @@ class RoomController extends RestController
 
         // Availability filter
         if ($request->filled('from_date') && $request->filled('to_date')) {
-    $from = $request->from_date;
-    $to = $request->to_date;
+            $from = $request->from_date;
+            $to = $request->to_date;
 
-    Log::debug("Filtering available rooms between: $from and $to");
+            Log::debug("Filtering available rooms between: $from and $to");
 
-    $query->whereRaw("
+            $query->whereRaw("
         NOT EXISTS (
             SELECT 1 FROM bookings
             WHERE bookings.object_type = 'room'
@@ -62,8 +62,7 @@ class RoomController extends RestController
               )
         )
     ", [$from, $to, $from, $to, $from, $to]);
-}
- else {
+        } else {
             Log::debug("No date filter applied");
         }
 
