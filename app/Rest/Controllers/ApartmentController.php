@@ -47,8 +47,8 @@ class ApartmentController extends RestController
     $query->whereRaw("
         NOT EXISTS (
             SELECT 1 FROM bookings
-            WHERE bookings.object_type = 'room'
-              AND bookings.object_id = rooms.id
+            WHERE bookings.object_type = 'apartment'
+              AND bookings.object_id = apartments.id
               AND (
                   (bookings.from_date_time BETWEEN ? AND ?)
                   OR (bookings.to_date_time BETWEEN ? AND ?)

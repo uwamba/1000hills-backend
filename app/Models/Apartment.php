@@ -55,4 +55,9 @@ class Apartment extends Model
         return $this->hasMany(Photo::class, 'object_id')
                     ->where('object_type', 'apartment');
     }
+     public function bookings()
+    {
+        return $this->morphMany(Booking::class, 'object')
+            ->where('object_type', 'apartment');
+    }
 }
