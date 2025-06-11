@@ -8,6 +8,7 @@ use App\Models\Photo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class RoomController extends RestController
 {
@@ -20,20 +21,25 @@ class RoomController extends RestController
     }
 
 
-  use Illuminate\Http\Request;
+
 
 public function roomList(Request $request)
 {
     $perPage = 10;
 
+    Log::info('--- Room list request received ---');
+    Log::debug('Request query:', $request->all());
+
     $query = Room::with('photos');
 
     // Price filter
     if ($request->filled('min_price')) {
+        Log::debug("Filtering rooms with price >= {$request->min_price}");
         $query->where('price', '>=', $request->min_price);
     }
 
     if ($request->filled('max_price')) {
+        Log::debug("Filtering rooms with price <= {$request->max_price}");
         $query->where('price', '<=', $request->max_price);
     }
 
@@ -42,23 +48,28 @@ public function roomList(Request $request)
         $from = $request->from_date;
         $to = $request->to_date;
 
+        Log::debug("Filtering available rooms between: $from and $to");
+
         $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
             $q->where(function ($subQuery) use ($from, $to) {
-                $subQuery->whereBetween('from_date_time', [$from, $to])
-                    ->orWhereBetween('to_date_time', [$from, $to])
+                $subQuery->whereBetween('checkin', [$from, $to])
+                    ->orWhereBetween('checkout', [$from, $to])
                     ->orWhere(function ($q2) use ($from, $to) {
-                        $q2->where('from_date_time', '<=', $from)
-                           ->where('to_date_time', '>=', $to);
+                        $q2->where('checkin', '<=', $from)
+                           ->where('checkout', '>=', $to);
                     });
             });
         });
+    } else {
+        Log::debug("No date filter applied");
     }
 
     $rooms = $query->paginate($perPage);
 
+    Log::info("Returning " . count($rooms) . " rooms on page {$rooms->currentPage()}");
+
     return response()->json($rooms, 200);
 }
-
 
 
     public function featuredRoomList()
