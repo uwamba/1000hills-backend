@@ -16,11 +16,37 @@ class JourneyController extends RestController
     );
 
     }
-    public function journeyList()
-    {
-        return JourneyResource::collection(
-            Journey::with(['bus.agency', 'bus.seatType'])->get());
+
+public function journeyList(Request $request)
+{
+    $query = Journey::with(['bus.agency', 'bus.seatType']);
+
+    // Filter by search (route or agency name)
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('route', 'like', '%' . $search . '%')
+              ->orWhereHas('bus.agency', function ($q2) use ($search) {
+                  $q2->where('name', 'like', '%' . $search . '%');
+              });
+        });
     }
+
+    // Filter by agency
+    if ($request->filled('agency')) {
+        $query->whereHas('bus.agency', function ($q) use ($request) {
+            $q->where('name', $request->input('agency'));
+        });
+    }
+
+    // Filter by departure date
+    if ($request->filled('departure_date')) {
+        $query->whereDate('departure_time', $request->input('departure_date'));
+    }
+
+    return JourneyResource::collection($query->get());
+}
+
     public function store(Request $request)
     {
         $validated = $request->validate([
