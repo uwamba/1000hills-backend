@@ -15,23 +15,52 @@ class RoomController extends RestController
     {
         $perPage = 10;
         $hotels = Room::with('photos')->paginate($perPage);
-    
+
         return response()->json($hotels, 200);
     }
 
-    public function roomList()
+
+    public function roomList(Request $request)
     {
         $perPage = 10;
-        $hotels = Room::with('photos')->paginate($perPage);
-    
-        return response()->json($hotels, 200);
+
+        $query = Room::with('photos');
+
+        // Optional filters
+        if ($request->filled('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->filled('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->filled('from_date') && $request->filled('to_date')) {
+            $from = $request->from_date;
+            $to = $request->to_date;
+
+            $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
+                $q->where(function ($query) use ($from, $to) {
+                    $query->whereBetween('from_date_time', [$from, $to])
+                        ->orWhereBetween('to_date_time', [$from, $to])
+                        ->orWhere(function ($q) use ($from, $to) {
+                            $q->where('from_date_time', '<', $from)->where('to_date_time', '>', $to);
+                        });
+                });
+            });
+        }
+
+        $rooms = $query->paginate($perPage);
+
+        return response()->json($rooms, 200);
     }
+
 
     public function featuredRoomList()
     {
         $hotels = Room::take(3)->get();
 
-    
+
         return response()->json($hotels, 200);
     }
 
@@ -95,7 +124,7 @@ class RoomController extends RestController
             'similarRooms' => $similarRooms
         ]);
     }
-     public function roomDetails($id)
+    public function roomDetails($id)
     {
         $room = Room::with('photos', 'hotel', 'updatedBy', 'deletedBy')
             ->findOrFail($id);
@@ -146,19 +175,19 @@ class RoomController extends RestController
     public function destroy($id)
     {
         $room = Room::find($id);
-    
+
         if (!$room) {
             return response()->json(['message' => 'Room not found'], 404);
         }
-    
+
         $room->update([
             'deleted_by' => Auth::id(),
             'deleted_on' => Carbon::now(),
         ]);
-    
+
         $room->delete();
-    
+
         return response()->json(['message' => 'Room deleted successfully'], 200);
     }
-    
+
 }

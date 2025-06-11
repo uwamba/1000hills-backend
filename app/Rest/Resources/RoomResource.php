@@ -4,6 +4,8 @@ namespace App\Rest\Resources;
 
 use App\Models\Room;
 use App\Rest\Resource as RestResource;
+    use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Lomkit\Rest\Http\Requests\RestRequest;
 
 
@@ -117,4 +119,7 @@ class RoomResource extends RestResource
     {
         return [];
     }
+
+
+
 }
