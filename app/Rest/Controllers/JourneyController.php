@@ -41,7 +41,7 @@ public function journeyList(Request $request)
 
     // Filter by departure date
     if ($request->filled('departure_date')) {
-        $query->whereDate('departure_time', $request->input('departure_date'));
+        $query->whereDate('departure', $request->input('departure_date'));
     }
 
     return JourneyResource::collection($query->get());
