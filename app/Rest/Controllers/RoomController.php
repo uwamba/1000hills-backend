@@ -20,40 +20,45 @@ class RoomController extends RestController
     }
 
 
-    public function roomList(Request $request)
-    {
-        $perPage = 10;
+  use Illuminate\Http\Request;
 
-        $query = Room::with('photos');
+public function roomList(Request $request)
+{
+    $perPage = 10;
 
-        // Optional filters
-        if ($request->filled('min_price')) {
-            $query->where('price', '>=', $request->min_price);
-        }
+    $query = Room::with('photos');
 
-        if ($request->filled('max_price')) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $from = $request->from_date;
-            $to = $request->to_date;
-
-            $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
-                $q->where(function ($query) use ($from, $to) {
-                    $query->whereBetween('from_date_time', [$from, $to])
-                        ->orWhereBetween('to_date_time', [$from, $to])
-                        ->orWhere(function ($q) use ($from, $to) {
-                            $q->where('from_date_time', '<', $from)->where('to_date_time', '>', $to);
-                        });
-                });
-            });
-        }
-
-        $rooms = $query->paginate($perPage);
-
-        return response()->json($rooms, 200);
+    // Price filter
+    if ($request->filled('min_price')) {
+        $query->where('price', '>=', $request->min_price);
     }
+
+    if ($request->filled('max_price')) {
+        $query->where('price', '<=', $request->max_price);
+    }
+
+    // Availability filter
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $from = $request->from_date;
+        $to = $request->to_date;
+
+        $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
+            $q->where(function ($subQuery) use ($from, $to) {
+                $subQuery->whereBetween('from_date_time', [$from, $to])
+                    ->orWhereBetween('to_date_time', [$from, $to])
+                    ->orWhere(function ($q2) use ($from, $to) {
+                        $q2->where('from_date_time', '<=', $from)
+                           ->where('to_date_time', '>=', $to);
+                    });
+            });
+        });
+    }
+
+    $rooms = $query->paginate($perPage);
+
+    return response()->json($rooms, 200);
+}
+
 
 
     public function featuredRoomList()
