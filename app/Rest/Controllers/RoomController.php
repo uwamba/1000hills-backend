@@ -23,56 +23,56 @@ class RoomController extends RestController
 
 
 
-public function roomList(Request $request)
-{
-    $perPage = 10;
+    public function roomList(Request $request)
+    {
+        $perPage = 10;
 
-    Log::info('--- Room list request received ---');
-    Log::debug('Request query:', $request->all());
+        Log::info('--- Room list request received ---');
+        Log::debug('Request query:', $request->all());
 
-    $query = Room::with('photos');
+        $query = Room::with('photos');
 
-    // Price filter
-    if ($request->filled('min_price')) {
-        Log::debug("Filtering rooms with price >= {$request->min_price}");
-        $query->where('price', '>=', $request->min_price);
-    }
+        // Price filter
+        if ($request->filled('min_price')) {
+            Log::debug("Filtering rooms with price >= {$request->min_price}");
+            $query->where('price', '>=', $request->min_price);
+        }
 
-    if ($request->filled('max_price')) {
-        Log::debug("Filtering rooms with price <= {$request->max_price}");
-        $query->where('price', '<=', $request->max_price);
-    }
+        if ($request->filled('max_price')) {
+            Log::debug("Filtering rooms with price <= {$request->max_price}");
+            $query->where('price', '<=', $request->max_price);
+        }
 
-    // Availability filter
-if ($request->filled('from_date') && $request->filled('to_date')) {
+        // Availability filter
+        if ($request->filled('from_date') && $request->filled('to_date')) {
     $from = $request->from_date;
     $to = $request->to_date;
 
     Log::debug("Filtering available rooms between: $from and $to");
 
-    $query->whereDoesntHave('bookings', function ($q) use ($from, $to) {
-    $q->where('object_type', 'room')
-      ->where(function ($subQuery) use ($from, $to) {
-          $subQuery->whereBetween('from_date_time', [$from, $to])
-                   ->orWhereBetween('to_date_time', [$from, $to])
-                   ->orWhere(function ($q2) use ($from, $to) {
-                       $q2->where('from_date_time', '<=', $from)
-                          ->where('to_date_time', '>=', $to);
-                   });
-      });
-});
-
+    $query->whereRaw("
+        NOT EXISTS (
+            SELECT 1 FROM bookings
+            WHERE bookings.object_type = 'room'
+              AND bookings.object_id = rooms.id
+              AND (
+                  (bookings.from_date_time BETWEEN ? AND ?)
+                  OR (bookings.to_date_time BETWEEN ? AND ?)
+                  OR (bookings.from_date_time <= ? AND bookings.to_date_time >= ?)
+              )
+        )
+    ", [$from, $to, $from, $to, $from, $to]);
 }
-else {
-        Log::debug("No date filter applied");
+ else {
+            Log::debug("No date filter applied");
+        }
+
+        $rooms = $query->paginate($perPage);
+
+        Log::info("Returning " . count($rooms) . " rooms on page {$rooms->currentPage()}");
+
+        return response()->json($rooms, 200);
     }
-
-    $rooms = $query->paginate($perPage);
-
-    Log::info("Returning " . count($rooms) . " rooms on page {$rooms->currentPage()}");
-
-    return response()->json($rooms, 200);
-}
 
 
     public function featuredRoomList()
