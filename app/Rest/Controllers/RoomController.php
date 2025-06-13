@@ -25,12 +25,13 @@ class RoomController extends RestController
 
     public function roomList(Request $request)
     {
-        $perPage = 10;
+        $perPage = 50;
 
         Log::info('--- Room list request received ---');
         Log::debug('Request query:', $request->all());
 
-        $query = Room::with('photos');
+        $query = Room::with(['photos', 'hotel']);
+
 
         // Price filter
         if ($request->filled('min_price')) {
