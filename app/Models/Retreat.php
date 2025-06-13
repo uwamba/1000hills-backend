@@ -61,4 +61,10 @@ class Retreat extends Model
         return $this->morphMany(Booking::class, 'object')
             ->where('object_type', 'event');
     }
+
+      public function hotel()
+    {
+        return $this->belongsTo(Hotel::class);
+    }
+
 }
