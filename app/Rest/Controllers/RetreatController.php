@@ -22,7 +22,13 @@ class RetreatController extends RestController
         );
     }
 
+ public function featuredEventList()
+    {
+        $hotels = Retreat::with(['photos', 'hotel'])->take(3)->get();
 
+
+        return response()->json($hotels, 200);
+    }
 public function retreatList(Request $request)
 {
     Log::info('--- Retreat list request received ---');

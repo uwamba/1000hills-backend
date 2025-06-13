@@ -47,6 +47,14 @@ public function journeyList(Request $request)
     return JourneyResource::collection($query->get());
 }
 
+ public function featuredJourneyList()
+    {
+        $hotels = Journey::take(3)->get();
+
+
+        return response()->json($hotels, 200);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

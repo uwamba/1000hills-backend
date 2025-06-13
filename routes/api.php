@@ -72,12 +72,16 @@ Route::get('/apartments/names', [ApartmentController::class, 'getAllApartmentNam
 // example of client endpaoint
 
 Route::get('/client/rooms', [RoomController::class, 'roomList']);
-Route::get('/client/featured-rooms', [RoomController::class, 'featuredRoomList']);
 Route::get('/client/rooms/{roomId}', [RoomController::class, 'roomDetails']);
 
 Route::get('/client/apartments', [ApartmentController::class, 'apartmentList']);
 Route::get('/client/retreats', [RetreatController::class, 'retreatList']);
 Route::get('/client/journeys', [JourneyController::class, 'journeyList']);
+
+Route::get('/client/featured-rooms', [RoomController::class, 'featuredRoomList']);
+Route::get('/client/featured-events', [RetreatController::class, 'featuredEventList']);
+Route::get('/client/featured-apartments', [ApartmentController::class, 'featuredApartemntList']);
+Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJourneyList']);
 
 
 

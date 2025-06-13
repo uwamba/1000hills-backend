@@ -61,7 +61,13 @@ class ApartmentController extends RestController
 
     return ApartmentResource::collection($query->get());
 }
+ public function featuredApartemntList()
+    {
+        $hotels = Apartment::take(3)->get();
 
+
+        return response()->json($hotels, 200);
+    }
 
      public function getAllApartmentNames()
 {
