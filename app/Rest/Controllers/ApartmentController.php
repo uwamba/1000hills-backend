@@ -63,7 +63,7 @@ class ApartmentController extends RestController
 }
  public function featuredApartemntList()
     {
-        $hotels = Apartment::take(3)->get();
+        $hotels = Apartment::with('photos')->take(3)->get();
 
 
         return response()->json($hotels, 200);
