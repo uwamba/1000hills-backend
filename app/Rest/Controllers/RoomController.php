@@ -77,7 +77,7 @@ class RoomController extends RestController
 
     public function featuredRoomList()
     {
-        $hotels = Room::take(3)->get();
+        $hotels = Room::with(['photos', 'hotel'])->take(3)->get();
 
 
         return response()->json($hotels, 200);
