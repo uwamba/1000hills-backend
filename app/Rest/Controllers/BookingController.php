@@ -18,8 +18,9 @@ use App\Mail\PaymentLinkMail;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Journey;
 use App\Models\Retreat;
-
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
+
 
 
 use Flutterwave\Payments\Facades\Flutterwave;
@@ -29,7 +30,6 @@ use Flutterwave\Payments\Data\Currency;
 use Bmatovu\MtnMomo\Products\Collection;
 use Bmatovu\MtnMomo\Exceptions\CollectionRequestException;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 
 
 class BookingController extends RestController
@@ -254,9 +254,9 @@ class BookingController extends RestController
     {
         Log::info('Booking.store called with payload: ' . json_encode($request->all()));
 
+    try {
         // Validate incoming request
         $validated = $request->validate([
-           
             'email' => 'required|email',
             'names' => 'required|string',
             'phone' => 'required|string',
@@ -269,8 +269,18 @@ class BookingController extends RestController
             'country' => 'required|string',
             'seat' => 'nullable|string|max:20',
         ]);
+    } catch (ValidationException $e) {
+        Log::error('Validation failed', [
+            'errors' => $e->errors(),
+            'input' => $request->all()
+        ]);
+        return response()->json([
+            'message' => 'Validation error',
+            'errors' => $e->errors(),
+        ], 422);
+    }
 
-        Log::info('Validation passed', $validated);
+    Log::info('Validation passed', $validated);
 
         // Find or create client
         $client = Client::firstOrCreate(
