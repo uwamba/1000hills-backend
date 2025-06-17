@@ -37,6 +37,7 @@ public function getAllHotelNames()
             'address' => 'required|string|max:500',
             'coordinate' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'contract' => 'nullable|string',
             'stars' => 'nullable|integer|min:1|max:5',
             'working_time' => 'nullable|string|max:255',
             'status' => 'nullable|string|max:255',        // New field
@@ -74,6 +75,7 @@ public function getAllHotelNames()
             'address' => 'sometimes|required|string|max:500',
             'coordinate' => 'nullable|string|max:255',
             'description' => 'nullable|string',
+            'contract' => 'nullable|string',
             'stars' => 'nullable|integer|min:1|max:5',
             'working_time' => 'nullable|string|max:255',
             'status' => 'nullable|string|max:255',

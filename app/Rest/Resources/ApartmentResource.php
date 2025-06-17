@@ -27,6 +27,9 @@ class ApartmentResource extends JsonResource
             'sauna_massage' => $this->sauna_massage,
             'price_per_night' => $this->price_per_night,
             'price_per_month' => $this->price_per_month,
+            'contract' => $this->contract,
+            'view' => $this->view,
+
             'updated_by' => $this->updatedBy ? $this->updatedBy->only(['id', 'name', 'email']) : null,
             'deleted_by' => $this->deletedBy ? $this->deletedBy->only(['id', 'name', 'email']) : null,
             'deleted_on' => $this->deleted_on,

@@ -19,6 +19,7 @@ class Hotel extends Model
         'address',
         'coordinate',
         'description',
+        'contract',
         'stars',
         'working_time',
         'status',        // New field

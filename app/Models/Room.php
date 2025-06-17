@@ -16,6 +16,7 @@ class Room extends Model
         'type',
         'has_wireless',
         'bed_size',
+        'view',
         'has_bathroom',
         'price',
         'currency',

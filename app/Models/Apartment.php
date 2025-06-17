@@ -24,6 +24,8 @@ class Apartment extends Model
         'price_per_month',
         'room_service',
         'sauna_massage',
+        'contract',
+        'view',
         'updated_by',
         'deleted_by',
         'deleted_on',
