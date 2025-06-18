@@ -31,6 +31,7 @@ class Apartment extends Model
         'updated_by',
         'deleted_by',
         'deleted_on',
+        'apartment_owner_id',
     ];
 
     protected $casts = [
