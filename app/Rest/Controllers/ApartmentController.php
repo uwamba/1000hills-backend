@@ -9,6 +9,11 @@ use App\Rest\Resources\ApartmentResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+
+
+
 class ApartmentController extends RestController
 {
     public function index()
@@ -77,49 +82,126 @@ class ApartmentController extends RestController
 }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'number_of_bedroom' => 'required|integer',
-            'kitchen_inside' => 'required|boolean',
-            'kitchen_outside' => 'required|boolean',
-            'number_of_floor' => 'required|integer',
-            'address' => 'required|string|max:255',
-            'coordinate' => 'nullable|string',
-            'annexes' => 'nullable|string',
-            'description' => 'nullable|string',
-            'contract' => 'nullable|string',
-            'view' => 'nullable|string',
-            'status' => 'nullable|string|in:active,inactive',
-            'swimming_pool' => 'nullable|boolean',
-            'laundry' => 'nullable|boolean',
-            'gym' => 'nullable|boolean',
-            'room_service' => 'nullable|boolean',
-            'sauna_massage' => 'nullable|boolean',
-            'apartment-owner_id' => 'required|exists:apartment_owners,id',
+{
+    // Log incoming request data for debugging (avoid logging sensitive data in production)
+    Log::info('Apartment store request received', [
+        'user_id' => Auth::id(),
+        'input' => $request->all(),
+        'files' => $request->files->keys(), // to know which file fields are present
+    ]);
+
+    // Define validation rules (corrected field name to apartment_owner_id)
+    $rules = [
+        'name'               => 'required|string|max:255',
+        'number_of_bedroom'  => 'required|integer|min:1',
+        'kitchen_inside'     => 'required|boolean',
+        'kitchen_outside'    => 'required|boolean',
+        'number_of_floor'    => 'required|integer|min:1',
+        'address'            => 'required|string|max:255',
+        'coordinate'         => 'nullable|string', // you may further validate format if needed
+        'annexes'            => 'nullable|string',
+        'description'        => 'nullable|string',
+        'contract'           => 'nullable|string', // if contract is a path; if file, handle separately
+        'view'               => 'nullable|string',
+        'status'             => 'nullable|string|in:active,inactive',
+        'swimming_pool'      => 'nullable|boolean',
+        'laundry'            => 'nullable|boolean',
+        'gym'                => 'nullable|boolean',
+        'room_service'       => 'nullable|boolean',
+        'sauna_massage'      => 'nullable|boolean',
+        'apartment_owner_id' => 'required|exists:apartment_owners,id',
+        // If handling photos upload here:
+        'photos'             => 'nullable|array',
+        'photos.*'           => 'file|image|max:5120', // adjust as needed
+    ];
+
+    // Create the validator instance
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        $errors = $validator->errors()->toArray();
+        // Log validation failure
+        Log::warning('Apartment validation failed', [
+            'user_id' => Auth::id(),
+            'errors'  => $errors,
+            'input'   => $request->all(),
         ]);
 
-        $validated['status'] = $validated['status'] ?? 'active';
-        $validated['updated_by'] = Auth::id();
+        return response()->json([
+            'message' => 'Validation Error',
+            'errors'  => $errors,
+        ], 422);
+    }
 
+    // Validation passed
+    $validated = $validator->validated();
+
+    // Set default status if not provided
+    $validated['status'] = $validated['status'] ?? 'active';
+    // Track who updated/created
+    $validated['updated_by'] = Auth::id();
+    // If you have created_by field and want to set:
+    $validated['created_by'] = Auth::id();
+
+    // If 'coordinate' needs parsing from "lat,lng" string to store as JSON or separate columns,
+    // handle here before create. For example:
+    // if (!empty($validated['coordinate'])) {
+    //     [$lat, $lng] = explode(',', $validated['coordinate']);
+    //     $validated['latitude'] = trim($lat);
+    //     $validated['longitude'] = trim($lng);
+    //     unset($validated['coordinate']);
+    // }
+
+    try {
+        // Create the apartment record
         $apartment = Apartment::create($validated);
+        Log::info('Apartment created', [
+            'user_id'     => Auth::id(),
+            'apartment_id'=> $apartment->id,
+        ]);
 
-        // Save photos
+        // Handle photos upload if present
         if ($request->hasFile('photos')) {
             foreach ($request->file('photos') as $photo) {
-                $path = $photo->store('photos/apartments', 'public');
-
-                Photo::create([
-                    'name' => $photo->getClientOriginalName(),
-                    'path' => $path,
-                    'object_type' => 'apartment',
-                    'object_id' => $apartment->id,
-                ]);
+                try {
+                    $path = $photo->store('photos/apartments', 'public');
+                    Photo::create([
+                        'name'        => $photo->getClientOriginalName(),
+                        'path'        => $path,
+                        'object_type' => 'apartment',
+                        'object_id'   => $apartment->id,
+                    ]);
+                    Log::info('Apartment photo saved', [
+                        'apartment_id' => $apartment->id,
+                        'path'         => $path,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to store apartment photo', [
+                        'apartment_id' => $apartment->id,
+                        'error'        => $e->getMessage(),
+                    ]);
+                    // Optionally continue or return error: here we continue to next photo
+                }
             }
         }
 
+        // Return the created resource
         return new ApartmentResource($apartment);
+
+    } catch (\Exception $e) {
+        // Log unexpected exception
+        Log::error('Unexpected error creating apartment', [
+            'user_id' => Auth::id(),
+            'error'   => $e->getMessage(),
+            'trace'   => $e->getTraceAsString(),
+        ]);
+
+        return response()->json([
+            'message' => 'Failed to create apartment due to server error',
+        ], 500);
     }
+}
+
 
     public function show(Apartment $apartment)
     {
