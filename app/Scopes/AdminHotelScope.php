@@ -12,7 +12,7 @@ class AdminHotelScope implements Scope
     public function apply(Builder $builder, Model $model)
     {
         if (Auth::guard('admin')->check()) {
-            $admin = Auth::guard('admins')->user();
+            $admin = Auth::guard('admin')->user();
 
             // Get the list of hotel_ids the admin manages
             $hotelIds = $admin->manages()
