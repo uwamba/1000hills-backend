@@ -36,7 +36,7 @@ class AdminController extends RestController
     if (!$admin || !Hash::check($request->password, $admin->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
-
+    $admin = Auth::user();
     // Create personal access token
     $token = $admin->createToken('Admin API Token')->accessToken;
 

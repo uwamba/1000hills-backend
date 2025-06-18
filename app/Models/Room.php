@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Scopes\AdminHotelScope;
 
 class Room extends Model
 {
@@ -81,6 +82,12 @@ class Room extends Model
         return $this->morphMany(Booking::class, 'object')
             ->where('object_type', 'room');
     }
-    
+
+
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new AdminHotelScope);
+    }
 
 }
