@@ -47,8 +47,5 @@ class Hotel extends Model
         ->where('object_type', 'hotel');
 }
 
-protected static function booted()
-    {
-        static::addGlobalScope(new AdminHotelScope);
-    }
+
 }
