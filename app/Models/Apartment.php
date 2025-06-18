@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Scopes\AdminApartmentScope;
 
 class Apartment extends Model
 {
@@ -61,5 +62,10 @@ class Apartment extends Model
     {
         return $this->morphMany(Booking::class, 'object')
             ->where('object_type', 'apartment');
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope(new AdminApartmentScope);
     }
 }

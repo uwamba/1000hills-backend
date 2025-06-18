@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use App\Scopes\AdminAgenceScope;
 class Journey extends Model
 {
     use HasFactory;
@@ -65,4 +65,10 @@ class Journey extends Model
     {
         return $this->belongsTo(User::class, 'deleted_by');
     }
+
+     protected static function booted()
+    {
+        static::addGlobalScope(new AdminAgenceScope);
+    }
+
 }
