@@ -13,7 +13,7 @@ use App\Rest\Controllers\BookingController;
 use App\Rest\Controllers\ClientController;
 use App\Rest\Controllers\BusTicketController;
 use App\Rest\Controllers\AuthController;
-
+use App\Rest\Controllers\ApartmentOwnerController;
 // Hotel Module Controllers
 use App\Rest\Controllers\HotelController;
 use App\Rest\Controllers\RoomController;
@@ -93,10 +93,14 @@ Route::middleware('authAny')->group(function () {
    Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
    Route::apiResource('photos', PhotoController::class);
-   Route::apiResource('admin-manages', AdminManageController::class);  
+   Route::apiResource('admin-manages', AdminManageController::class);
 
    Route::apiResource('clients', ClientController::class);
    Route::apiResource('hotels', HotelController::class);
+
+
+   Route::apiResource('apartment-owners', ApartmentOwnerController::class);
+
    Route::apiResource('rooms', RoomController::class);
    Route::apiResource('agencies', AgencyController::class);
    Route::apiResource('routes', TransportRouteController::class); // To avoid conflict with Laravel Route facade
@@ -112,14 +116,14 @@ Route::middleware(['auth', 'role:admin,editor'])->group(function () {
 
 
 Route::prefix('admin')->group(function () {
-    Route::post('/login', [AdminController::class, 'login']);
-    Route::post('/', [AdminController::class, 'store']); // Add new
-    Route::get(   '/', [AdminController::class, 'index']); // List all
-    Route::put('/{id}', [AdminController::class, 'update']);
-    Route::delete('/{id}', [AdminController::class, 'destroy']);
-    Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
-    Route::post('/{id}/activate', [AdminController::class, 'activate']);
-    Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']); 
+   Route::post('/login', [AdminController::class, 'login']);
+   Route::post('/', [AdminController::class, 'store']); // Add new
+   Route::get('/', [AdminController::class, 'index']); // List all
+   Route::put('/{id}', [AdminController::class, 'update']);
+   Route::delete('/{id}', [AdminController::class, 'destroy']);
+   Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
+   Route::post('/{id}/activate', [AdminController::class, 'activate']);
+   Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']);
 });
 
 
