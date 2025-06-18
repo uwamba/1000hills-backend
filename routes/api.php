@@ -86,7 +86,7 @@ Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJour
 
 
 // Authentication and Authorization Middleware example refer to this for other role protect routes
-Route::middleware('auth:any')->group(function () {
+Route::middleware('auth.any')->group(function () {
 
    Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
 
