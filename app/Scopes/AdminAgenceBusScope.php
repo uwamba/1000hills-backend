@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
-class AdminAgenceScope implements Scope
+class AdminAgenceBusScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
@@ -15,11 +15,11 @@ class AdminAgenceScope implements Scope
             $admin = Auth::guard('admin')->user();
 
             // Get the list of hotel_ids the admin manages
-            $hotelIds = $admin->manages()
+            $busIds = $admin->manages()
                 ->where('object', 'agence')
                 ->pluck('object_id');
 
-            $builder->whereIn('agency_id', $hotelIds);
+            $builder->whereIn('agency_id', $busIds);
         }
     }
 }
