@@ -110,9 +110,9 @@ class ApartmentController extends RestController
         'room_service'       => 'nullable|boolean',
         'sauna_massage'      => 'nullable|boolean',
         'apartment_owner_id' => 'required|exists:apartment_owners,id',
-        // If handling photos upload here:
-        'photos'             => 'nullable|array',
-        'photos.*'           => 'file|image|max:5120', // adjust as needed
+        'contact'    => 'nullable|string|max:20', // Assuming contact number is optional
+
+  
     ];
 
     // Create the validator instance
