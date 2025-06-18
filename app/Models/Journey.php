@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Scopes\AdminAgenceJourneyScope;
+use App\Scopes\AdminAgencyJourneyScope;
 class Journey extends Model
 {
     use HasFactory;
@@ -68,7 +68,7 @@ class Journey extends Model
 
      protected static function booted()
     {
-        static::addGlobalScope(new AdminAgenceJourneyScope);
+        static::addGlobalScope(new AdminAgencyJourneyScope);
     }
 
 }

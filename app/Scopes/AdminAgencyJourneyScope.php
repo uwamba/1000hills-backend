@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
-class AdminAgenceJourneyScope implements Scope
+class AdminAgencyJourneyScope implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {
