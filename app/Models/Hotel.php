@@ -5,6 +5,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Scopes\AdminHotelScope;
 
 class Hotel extends Model
 {
@@ -46,4 +47,8 @@ class Hotel extends Model
         ->where('object_type', 'hotel');
 }
 
+protected static function booted()
+    {
+        static::addGlobalScope(new AdminHotelScope);
+    }
 }
