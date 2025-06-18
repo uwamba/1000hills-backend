@@ -19,7 +19,7 @@ class AdminApartmentScope implements Scope
                 ->where('object', 'apartment')
                 ->pluck('object_id');
 
-            $builder->whereIn('apartment_id', $hotelIds);
+            $builder->whereIn('id', $hotelIds);
         }
     }
 }
