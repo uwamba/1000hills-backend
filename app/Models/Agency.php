@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Scopes\AdminAgenceScope;
+use App\Scopes\AdminMyAgenceScope;
 
 class Agency extends Model
 {
@@ -36,7 +36,7 @@ public function deletedBy()
 }
 protected static function booted()
     {
-        static::addGlobalScope(new AdminAgenceScope);
+        static::addGlobalScope(new AdminMyAgenceScope);
     }
 
 }
