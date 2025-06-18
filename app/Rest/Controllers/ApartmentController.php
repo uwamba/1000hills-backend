@@ -96,6 +96,7 @@ class ApartmentController extends RestController
             'gym' => 'nullable|boolean',
             'room_service' => 'nullable|boolean',
             'sauna_massage' => 'nullable|boolean',
+            'apartment-owner_id' => 'required|exists:apartment_owners,id',
         ]);
 
         $validated['status'] = $validated['status'] ?? 'active';
