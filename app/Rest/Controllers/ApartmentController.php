@@ -101,7 +101,6 @@ class ApartmentController extends RestController
         'coordinate'         => 'nullable|string', // you may further validate format if needed
         'annexes'            => 'nullable|string',
         'description'        => 'nullable|string',
-        'contract'           => 'nullable|string', // if contract is a path; if file, handle separately
         'view'               => 'nullable|string',
         'status'             => 'nullable|string|in:active,inactive',
         'swimming_pool'      => 'nullable|boolean',
