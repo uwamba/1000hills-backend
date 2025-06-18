@@ -13,7 +13,6 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 use App\Rest\Controller as RestController;
 
-
 class AdminController extends RestController
 {
        public function index()
@@ -23,27 +22,22 @@ class AdminController extends RestController
 
     return response()->json($hotels, 200);
 }
-
-
-public function login(Request $request)
+    public function login(Request $request)
 {
     $request->validate([
         'email'    => 'required|email',
         'password' => 'required|string',
     ]);
 
-    // Try to authenticate using the admin guard
-    if (!Auth::guard('admin')->attempt([
-        'email' => $request->email,
-        'password' => $request->password,
-    ])) {
+    // Fetch admin by email
+    $admin = Admin::where('email', $request->email)->first();
+
+    // Check if admin exists and password matches
+    if (!$admin || !Hash::check($request->password, $admin->password)) {
         return response()->json(['message' => 'Invalid credentials'], 401);
     }
 
-    // Get the authenticated admin
-    $admin = Auth::guard('admin')->user();
-
-    // Create a personal access token (requires Passport or Sanctum)
+    // Create personal access token
     $token = $admin->createToken('Admin API Token')->accessToken;
 
     return response()->json([
@@ -52,7 +46,6 @@ public function login(Request $request)
         'token'   => $token,
     ]);
 }
-
 
 
 public function store(Request $request)
