@@ -108,6 +108,8 @@ class ApartmentController extends RestController
         'gym'                => 'nullable|boolean',
         'room_service'       => 'nullable|boolean',
         'sauna_massage'      => 'nullable|boolean',
+        'price_per_night'    => 'required|numeric',
+        'price_per_month'    => 'required|numeric',
         'apartment_owner_id' => 'required|exists:apartment_owners,id',
         'contact'    => 'nullable|string|max:20', // Assuming contact number is optional
 
@@ -227,6 +229,8 @@ class ApartmentController extends RestController
             'laundry' => 'nullable|boolean',
             'gym' => 'nullable|boolean',
             'room_service' => 'nullable|boolean',
+            'price_per_night' => 'required|numeric',
+            'price_per_month'    => 'required|numeric',
             'sauna_massage' => 'nullable|boolean',
         ]);
 
