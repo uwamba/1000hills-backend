@@ -65,7 +65,7 @@ class Apartment extends Model
         return $this->morphMany(Booking::class, 'object')
             ->where('object_type', 'apartment');
     }
-    public function owner()
+    public function apartemntOwner()
     {
         return $this->belongsTo(ApartmentOwner::class, 'apartment_owner_id');
         // By default, Laravel will look for apartment_owner_id, so the second argument is optional

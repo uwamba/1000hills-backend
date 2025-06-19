@@ -15,11 +15,11 @@ class AdminApartmentScope implements Scope
             $admin = Auth::guard('admin')->user();
 
             // Get the list of hotel_ids the admin manages
-            $hotelIds = $admin->manages()
+            $aprtIds = $admin->manages()
                 ->where('object', 'apartment')
                 ->pluck('object_id');
 
-            $builder->whereIn('id', $hotelIds);
+            $builder->whereIn('apartment_owner_id', $aprtIds);
         }
     }
 }
