@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Room;
 
 class Booking extends Model
 {
@@ -41,9 +43,75 @@ class Booking extends Model
 }
 
 
- public function scopeForRooms($query)
+
+
+    // Existing scope
+    public function scopeForRooms($query)
     {
         return $query->where('object_type', 'room');
     }
 
+    /**
+     * Scope: room bookings accessible to the authenticated admin,
+     * based on admin_manage entries of type 'hotel' or 'room'.
+     *
+     * - If admin manages specific rooms (object='room'), include those.
+     * - If admin manages hotels (object='hotel'), include all rooms in those hotels.
+     * - If not authenticated as admin, this scope does nothing (returns forRooms only),
+     *   or you can adjust to return none or all.
+     */
+    public function scopeForAdminRooms($query)
+    {
+        // First apply object_type = 'room'
+        $query->where('object_type', 'room');
+
+        // Check admin guard
+        if (!Auth::guard('admin')->check()) {
+            // Not an admin: we leave it as plain forRooms()
+            // Alternatively, you could force no results:
+            // $query->whereRaw('0 = 1');
+            return $query;
+        }
+
+        $admin = Auth::guard('admin')->user();
+
+        // Fetch admin_manage entries for 'room' and 'hotel'
+        $manages = $admin->manages()->whereIn('object', ['room', 'hotel'])->get()->groupBy('object');
+
+        // If admin manages nothing relevant, force no results (optional); or skip further filtering:
+        if ($manages->isEmpty()) {
+            // Uncomment to force empty:
+            // return $query->whereRaw('0 = 1');
+            // Otherwise, return only object_type filter (all room bookings)
+            return $query;
+        }
+
+        // Wrap additional conditions in a nested where to combine with object_type
+        $query->where(function ($q) use ($manages) {
+            // Direct room management: admin_manage.object='room'
+            if (isset($manages['room'])) {
+                $roomIds = $manages['room']->pluck('object_id')->toArray();
+                if (!empty($roomIds)) {
+                    $q->orWhereIn('object_id', $roomIds);
+                }
+            }
+            // Hotel management: admin_manage.object='hotel'
+            if (isset($manages['hotel'])) {
+                $hotelIds = $manages['hotel']->pluck('object_id')->toArray();
+                if (!empty($hotelIds)) {
+                    // Need to include bookings where object_id refers to a Room whose hotel_id is in $hotelIds.
+                    // We'll use whereHasMorph on the 'object' relation to filter Room.hoteI_id:
+                    $q->orWhereHasMorph(
+                        'object',
+                        [Room::class],
+                        function ($q2) use ($hotelIds) {
+                            $q2->whereIn('hotel_id', $hotelIds);
+                        }
+                    );
+                }
+            }
+        });
+
+        return $query;
+    }
 }

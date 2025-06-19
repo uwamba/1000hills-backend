@@ -40,10 +40,14 @@ class BookingController extends RestController
         return BookingResource::collection($bookings);
     }
 
+
+
     public function roomBookings()
     {
-        $roomBookings = Booking::forRooms()
+        $roomBookings = Booking::forAdminRooms()
             ->with(['room', 'client'])
+            // or ->with(['room','client']) if you prefer; 
+            // with('object') will eager-load the Room model via morphTo
             ->get();
 
         return response()->json([
@@ -54,41 +58,42 @@ class BookingController extends RestController
 
 
 
+
     public function store(Request $request)
     {
         Log::info('Booking.store called with payload: ' . json_encode($request->all()));
 
         // Validate incoming request
-         try {
-        $validated = $request->validate([
-            'from_date_time'   => 'required|date',
-            'to_date_time'     => 'required|date|after:from_date_time',
-            'email'            => 'required|email',
-            'names'            => 'required|string',
-            'country'          => 'required|string',
-            'phone'            => 'required|string',
-            'object_type'      => 'required|string|max:255',
-            'object_id'        => 'required',
-            'amount_to_pay'    => 'required',
-            'status'           => 'nullable|string|max:50',
-            'payment_method'   => 'required|string',
-            'momo_number'      => 'nullable|string|max:20',
-        ]);
+        try {
+            $validated = $request->validate([
+                'from_date_time' => 'required|date',
+                'to_date_time' => 'required|date|after:from_date_time',
+                'email' => 'required|email',
+                'names' => 'required|string',
+                'country' => 'required|string',
+                'phone' => 'required|string',
+                'object_type' => 'required|string|max:255',
+                'object_id' => 'required',
+                'amount_to_pay' => 'required',
+                'status' => 'nullable|string|max:50',
+                'payment_method' => 'required|string',
+                'momo_number' => 'nullable|string|max:20',
+            ]);
 
-        // continue with storing the data...
+            // continue with storing the data...
 
-    } catch (ValidationException $e) {
-        Log::error('Validation failed:', [
-            'errors' => $e->errors(),
-            'input'  => $request->all(),
-        ]);
+        } catch (ValidationException $e) {
+            Log::error('Validation failed:', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+            ]);
 
-        return response()->json([
-            'message' => 'Validation error',
-            'errors'  => $e->errors(),
-        ], 422);
-    }
-        
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
 
         Log::info('Validation passed', $validated);
 
@@ -119,8 +124,7 @@ class BookingController extends RestController
             }
             Log::info('Room found', ['room_id' => $object->id]);
 
-        } 
-         elseif ($objectType === 'apartment') {
+        } elseif ($objectType === 'apartment') {
             $object = Apartment::find($objectId);
             if (!$object) {
                 Log::error('Apartemnt not found', ['object_id' => $objectId]);
@@ -128,8 +132,7 @@ class BookingController extends RestController
             }
             Log::info('Room found', ['room_id' => $object->id]);
 
-        }
-        elseif ($objectType === 'ticket') {
+        } elseif ($objectType === 'ticket') {
             $object = Journey::find($objectId);
             if (!$object) {
                 Log::error('Journey not found', ['object_id' => $objectId]);
@@ -137,8 +140,7 @@ class BookingController extends RestController
             }
             Log::info('Journey found', ['journey_id' => $object->id]);
 
-        } 
-        elseif ($objectType === 'event') {
+        } elseif ($objectType === 'event') {
             $object = Retreat::find($objectId);
             if (!$object) {
                 Log::error('event not found', ['object_id' => $objectId]);
@@ -146,8 +148,7 @@ class BookingController extends RestController
             }
             Log::info('event found', ['journey_id' => $object->id]);
 
-        }
-        else {
+        } else {
             Log::error('Unsupported object_type', ['object_type' => $objectType]);
             return response()->json(['message' => 'Unsupported object type'], 400);
         }
@@ -207,8 +208,8 @@ class BookingController extends RestController
             // Now you can safely access it like an array
             $paymentLink = $payment['payment_link'];
 
-              $paymentModel->status = 'success';
-              $paymentModel->save();
+            $paymentModel->status = 'success';
+            $paymentModel->save();
 
             Log::info("Generated front‑end payment link: {$paymentLink}");
 
@@ -254,33 +255,33 @@ class BookingController extends RestController
     {
         Log::info('Booking.store called with payload: ' . json_encode($request->all()));
 
-    try {
-        // Validate incoming request
-        $validated = $request->validate([
-            'email' => 'required|email',
-            'names' => 'required|string',
-            'phone' => 'required|string',
-            'object_type' => 'required|string|max:255',
-            'object_id' => 'required',
-            'amount_to_pay' => 'required',
-            'status' => 'nullable|string|max:50',
-            'payment_method' => 'required|string',
-            'momo_number' => 'nullable|string|max:20',
-            'country' => 'required|string',
-            'seat' => 'nullable|string|max:20',
-        ]);
-    } catch (ValidationException $e) {
-        Log::error('Validation failed', [
-            'errors' => $e->errors(),
-            'input' => $request->all()
-        ]);
-        return response()->json([
-            'message' => 'Validation error',
-            'errors' => $e->errors(),
-        ], 422);
-    }
+        try {
+            // Validate incoming request
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'names' => 'required|string',
+                'phone' => 'required|string',
+                'object_type' => 'required|string|max:255',
+                'object_id' => 'required',
+                'amount_to_pay' => 'required',
+                'status' => 'nullable|string|max:50',
+                'payment_method' => 'required|string',
+                'momo_number' => 'nullable|string|max:20',
+                'country' => 'required|string',
+                'seat' => 'nullable|string|max:20',
+            ]);
+        } catch (ValidationException $e) {
+            Log::error('Validation failed', [
+                'errors' => $e->errors(),
+                'input' => $request->all()
+            ]);
+            return response()->json([
+                'message' => 'Validation error',
+                'errors' => $e->errors(),
+            ], 422);
+        }
 
-    Log::info('Validation passed', $validated);
+        Log::info('Validation passed', $validated);
 
         // Find or create client
         $client = Client::firstOrCreate(
@@ -301,15 +302,15 @@ class BookingController extends RestController
         $objectType = $validated['object_type'];
         $objectId = $validated['object_id'];
 
-        
-            $object = Journey::find($objectId);
-            if (!$object) {
-                Log::error('object not found', ['object_id' => $objectId]);
-                return response()->json(['message' => 'object not found'], 404);
-            }
-            Log::info('Room found', ['room_id' => $object->id]);
 
-        
+        $object = Journey::find($objectId);
+        if (!$object) {
+            Log::error('object not found', ['object_id' => $objectId]);
+            return response()->json(['message' => 'object not found'], 404);
+        }
+        Log::info('Room found', ['room_id' => $object->id]);
+
+
 
         // Create booking
         try {
@@ -321,7 +322,7 @@ class BookingController extends RestController
                 'to_date_time' => now()->addHours(2),// Assuming Journey has these fields
                 'amount_to_pay' => $validated['amount_to_pay'],
                 'status' => $validated['status'] ?? "pending",
-                'seat' => $validated['seat'] ?? null, 
+                'seat' => $validated['seat'] ?? null,
             ]);
 
             $payment = Payment::create([
@@ -484,7 +485,7 @@ class BookingController extends RestController
         return new BookingResource($booking);
     }
 
-    public function getBookedSeats(int $objectId, string $objectType = 'ticket',)
+    public function getBookedSeats(int $objectId, string $objectType = 'ticket', )
     {
         return Booking::where('object_type', $objectType)
             ->where('object_id', $objectId)
