@@ -45,11 +45,7 @@ class Booking extends Model
 
 
 
-    // Existing scope
-    public function scopeForRooms($query)
-    {
-        return $query->where('object_type', 'room');
-    }
+
 
     /**
      * Scope: room bookings accessible to the authenticated admin,
@@ -76,7 +72,7 @@ class Booking extends Model
         $admin = Auth::guard('admin')->user();
 
         // Fetch admin_manage entries for 'room' and 'hotel'
-        $manages = $admin->manages()->whereIn('object', ['room', 'hotel'])->get()->groupBy('object');
+        $manages = $admin->manages()->whereIn('object', ['hotel'])->get()->groupBy('object');
 
         // If admin manages nothing relevant, force no results (optional); or skip further filtering:
         if ($manages->isEmpty()) {
@@ -88,13 +84,7 @@ class Booking extends Model
 
         // Wrap additional conditions in a nested where to combine with object_type
         $query->where(function ($q) use ($manages) {
-            // Direct room management: admin_manage.object='room'
-            if (isset($manages['room'])) {
-                $roomIds = $manages['room']->pluck('object_id')->toArray();
-                if (!empty($roomIds)) {
-                    $q->orWhereIn('object_id', $roomIds);
-                }
-            }
+            
             // Hotel management: admin_manage.object='hotel'
             if (isset($manages['hotel'])) {
                 $hotelIds = $manages['hotel']->pluck('object_id')->toArray();
