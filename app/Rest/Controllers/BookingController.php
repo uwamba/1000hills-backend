@@ -45,7 +45,7 @@ class BookingController extends RestController
     public function roomBookings()
     {
         $roomBookings = Booking::forAdminRooms()
-            ->with(['room', 'client'])
+            ->with(['object', 'client'])
             // or ->with(['room','client']) if you prefer; 
             // with('object') will eager-load the Room model via morphTo
             ->get();
