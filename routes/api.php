@@ -39,6 +39,7 @@ use App\Rest\Controllers\RetreatController;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::post('logout', [AuthController::class, 'logout']);
 
 // otp verification
 Route::post('/send-otp', [OtpController::class, 'send']);
