@@ -15,102 +15,102 @@ use App\Rest\Controller as RestController;
 
 class AdminController extends RestController
 {
-       public function index()
-{
-    $perPage = 10; // You can change this to any number or get it from query params
-    $hotels = Admin ::paginate($perPage);
+    public function index()
+    {
+        $perPage = 10; // You can change this to any number or get it from query params
+        $hotels = Admin::paginate($perPage);
 
-    return response()->json($hotels, 200);
-}
+        return response()->json($hotels, 200);
+    }
     public function login(Request $request)
-{
-    $request->validate([
-        'email'    => 'required|email',
-        'password' => 'required|string',
-    ]);
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
 
-    // Fetch admin by email
-    $admin = Admin::where('email', $request->email)->first();
+        // Fetch admin by email
+        $admin = Admin::where('email', $request->email)->first();
 
-    // Check if admin exists and password matches
-    if (!$admin || !Hash::check($request->password, $admin->password)) {
-        return response()->json(['message' => 'Invalid credentials'], 401);
+        // Check if admin exists and password matches
+        if (!$admin || !Hash::check($request->password, $admin->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        // Create personal access token
+        $token = $admin->createToken('Admin API Token')->accessToken;
+
+        return response()->json([
+            'message' => 'Login successful',
+            'user' => $admin,
+            'token' => $token,
+        ]);
     }
 
-    // Create personal access token
-    $token = $admin->createToken('Admin API Token')->accessToken;
 
-    return response()->json([
-        'message' => 'Login successful',
-        'admin'   => $admin,
-        'token'   => $token,
-    ]);
-}
+    public function store(Request $request)
+    {
+        Log::debug('Admin creation request received.', $request->all());
 
+        try {
+            $validated = $request->validate([
+                'names' => 'required|string',
+                'email' => 'required|email|unique:admins',
+                'address' => 'required|string',
+                'phone' => 'required|string',
+                'role' => 'required|string',
+                'password' => 'required|string|min:6',
+                'object' => 'required|string',
+                'object_id' => 'required|string',
+                'is_active' => 'required|boolean',
 
-public function store(Request $request)
-{
-    Log::debug('Admin creation request received.', $request->all());
+            ]);
 
-    try {
-        $validated = $request->validate([
-            'names'     => 'required|string',
-            'email'     => 'required|email|unique:admins',
-            'address'   => 'required|string',
-            'phone'     => 'required|string',
-            'role'      => 'required|string',
-            'password'  => 'required|string|min:6',
-            'object'    => 'required|string',
-            'object_id' => 'required|string',
-            'is_active' => 'required|boolean',
+            $admin = Admin::create([
+                'names' => $validated['names'],
+                'email' => $validated['email'],
+                'address' => $validated['address'],
+                'phone' => $validated['phone'],
+                'role' => $validated['role'],
+                'password' => Hash::make($validated['password']),
+                'is_active' => $validated['is_active'] === 'true' || $validated['is_active'] == 1,
+            ]);
 
-        ]);
+            Log::debug('Admin created successfully.', ['admin_id' => $admin->id]);
 
-        $admin = Admin::create([
-            'names'     => $validated['names'],
-            'email'     => $validated['email'],
-            'address'   => $validated['address'],
-            'phone'     => $validated['phone'],
-            'role'      => $validated['role'],
-            'password'  => Hash::make($validated['password']),
-            'is_active' => $validated['is_active'] === 'true' || $validated['is_active'] == 1,
-        ]);
+            $adminManage = AdminManage::create([
+                'admin_id' => $admin->id,
+                'object' => $validated['object'],
+                'object_id' => $validated['object_id'],
+            ]);
 
-        Log::debug('Admin created successfully.', ['admin_id' => $admin->id]);
+            Log::debug('AdminManage record created.', ['admin_manage_id' => $adminManage->id]);
 
-        $adminManage = AdminManage::create([
-            'admin_id'  => $admin->id,
-            'object'    => $validated['object'],
-            'object_id' => $validated['object_id'],
-        ]);
+            return response()->json([
+                'message' => 'Admin created and linked to object',
+                'admin' => $admin
+            ]);
+        } catch (ValidationException $ve) {
+            Log::warning('Validation failed during admin creation.', [
+                'errors' => $ve->errors()
+            ]);
 
-        Log::debug('AdminManage record created.', ['admin_manage_id' => $adminManage->id]);
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $ve->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Unexpected error during admin creation.', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
 
-        return response()->json([
-            'message' => 'Admin created and linked to object',
-            'admin'   => $admin
-        ]);
-    } catch (ValidationException $ve) {
-        Log::warning('Validation failed during admin creation.', [
-            'errors' => $ve->errors()
-        ]);
-
-        return response()->json([
-            'message' => 'Validation failed',
-            'errors'  => $ve->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        Log::error('Unexpected error during admin creation.', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
-
-        return response()->json([
-            'message' => 'Failed to create admin',
-            'error'   => $e->getMessage()
-        ], 500);
+            return response()->json([
+                'message' => 'Failed to create admin',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
-}
 
     public function update(Request $request, $id)
     {
