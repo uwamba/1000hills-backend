@@ -30,7 +30,7 @@ class RoomController extends RestController
         Log::info('--- Room list request received ---');
         Log::debug('Request query:', $request->all());
 
-        $query = Room::with(['photos']);
+        $query = Room::with(['photos', 'hotel']);
 
 
         // Price filter
