@@ -24,9 +24,10 @@ class AdminManage extends Model
     }
 
     public function manageable()
-    {
-        return $this->morphTo();
-    }
+{
+    return $this->morphTo(__FUNCTION__, 'object', 'object_id');
+}
+
 
     
 }
