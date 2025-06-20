@@ -23,6 +23,11 @@ class AdminManage extends Model
         return $this->morphTo();
     }
 
+    public function manageable()
+    {
+        return $this->morphTo();
+    }
+
     
 }
 
