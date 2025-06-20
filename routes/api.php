@@ -26,7 +26,7 @@ use App\Rest\Controllers\JourneyController;
 use App\Rest\Controllers\OtpController;
 use App\Rest\Controllers\BookingController as TransportBookingController;
 
-
+use App\Rest\Controllers\ContactController;
 
 
 
@@ -40,6 +40,11 @@ use App\Rest\Controllers\RetreatController;
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('logout', [AuthController::class, 'logout']);
+
+
+
+
+Route::post('/contact', [ContactController::class, 'store']);
 
 // otp verification
 Route::post('/send-otp', [OtpController::class, 'send']);
