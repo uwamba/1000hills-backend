@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Support\Facades\Auth;
 
-class AdminHotelScope implements Scope
+class AdminHotelScopehhhh implements Scope
 {
     public function apply(Builder $builder, Model $model)
     {

@@ -85,9 +85,9 @@ class Room extends Model
 
 
 
-    protected static function booted()
-    {
-        static::addGlobalScope(new AdminHotelScope);
-    }
+   //protected static function booted()
+    //{
+       // static::addGlobalScope(new AdminHotelScope);
+    //}
 
 }
