@@ -43,13 +43,7 @@ class AdminController extends RestController
         return response()->json([
             'message' => 'Login successful',
             'user' => $admin,
-            'managed_objects' => $admin->manages->map(function ($manage) {
-                return [
-                    'type' => class_basename($manage->object),
-                    'id' => $manage->object_id,
-                    'data' => $manage->manageable, // now this works
-                ];
-            }),
+            'managed_objects' => $admin->manages,
             'token' => $token,
         ]);
     }
