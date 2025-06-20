@@ -14,69 +14,72 @@ use Illuminate\Validation\ValidationException;
 class HotelController extends RestController
 {
     public function index()
-{
-    $perPage = 10; // You can change this to any number or get it from query params
-    $hotels = Hotel::with('photos')->paginate($perPage);
+    {
+        $perPage = 10; // You can change this to any number or get it from query params
+        $hotels = Hotel::with('photos')->paginate($perPage);
 
-    return response()->json($hotels, 200);
-}
-
-
-public function getAllHotelNames()
-{
-    $hotels = Hotel::select('id', 'name')->get();
-
-    return response()->json($hotels);
-}
-
-
-
-
-   public function store(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'coordinate' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'contract' => 'nullable|string',
-            'stars' => 'nullable|integer|min:1|max:5',
-            'working_time' => 'nullable|string|max:255',
-            'status' => 'nullable|string|max:255',
-            'updated_by' => 'nullable|integer|exists:users,id',
-            'deleted_by' => 'nullable|integer|exists:users,id',
-            'deleted_on' => 'nullable|date',
-        ]);
-    } catch (ValidationException $e) {
-        Log::warning('Validation failed for hotel creation', [
-            'errors' => $e->errors(),
-            'input' => $request->all(),
-            'user_id' => auth()->id(), // optional if using auth
-        ]);
-
-        // You can re-throw the exception or return a custom response
-        throw $e;
-        // return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        return response()->json($hotels, 200);
     }
 
-    $hotel = Hotel::create($validated);
 
-    if ($request->hasFile('photos')) {
-        foreach ($request->file('photos') as $photo) {
-            $path = $photo->store('photos/hotels', 'public');
+    public function getAllHotelNames()
+    {
+        $hotels = Hotel::select('id', 'name')->get();
 
-            Photo::create([
-                'name' => $photo->getClientOriginalName(),
-                'path' => $path,
-                'object_type' => 'hotel',
-                'object_id' => $hotel->id,
+        return response()->json($hotels);
+    }
+
+
+
+
+    public function store(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'address' => 'required|string|max:500',
+                'coordinate' => 'nullable|string|max:255',
+                'description' => 'nullable|string',
+                'contract' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // Adjust max size as needed
+                'stars' => 'nullable|integer|min:1|max:5',
+                'working_time' => 'nullable|string|max:255',
+                'status' => 'nullable|string|max:255',
+                'updated_by' => 'nullable|integer|exists:users,id',
+                'deleted_by' => 'nullable|integer|exists:users,id',
+                'deleted_on' => 'nullable|date',
             ]);
-        }
-    }
+        } catch (ValidationException $e) {
+            Log::warning('Validation failed for hotel creation', [
+                'errors' => $e->errors(),
+                'input' => $request->all(),
+                'user_id' => auth()->id(), // optional if using auth
+            ]);
 
-    return response()->json($hotel, 201);
-}
+            // You can re-throw the exception or return a custom response
+            throw $e;
+            // return response()->json(['message' => 'Validation failed', 'errors' => $e->errors()], 422);
+        }
+        if ($request->hasFile('contract')) {
+            $validated['contract'] = $request->file('contract')->store('contracts', 'public');
+        }
+
+        $hotel = Hotel::create($validated);
+
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $path = $photo->store('photos/hotels', 'public');
+
+                Photo::create([
+                    'name' => $photo->getClientOriginalName(),
+                    'path' => $path,
+                    'object_type' => 'hotel',
+                    'object_id' => $hotel->id,
+                ]);
+            }
+        }
+
+        return response()->json($hotel, 201);
+    }
     public function show(Hotel $hotel)
     {
         return response()->json($hotel);
@@ -97,7 +100,7 @@ public function getAllHotelNames()
             'deleted_by' => 'nullable|integer|exists:users,id',
             'deleted_on' => 'nullable|date',
         ]);
-    
+
         $hotel->update($validated);
 
         // Handle photo replacement
@@ -125,19 +128,19 @@ public function getAllHotelNames()
 
         return response()->json($hotel->load('photos'));
     }
-    
+
 
     public function destroy($id)
-{
-    $hotel = Hotel::find($id);
+    {
+        $hotel = Hotel::find($id);
 
-    if (!$hotel) {
-        return response()->json(['message' => 'Hotel not found'], 404);
+        if (!$hotel) {
+            return response()->json(['message' => 'Hotel not found'], 404);
+        }
+
+        $hotel->delete();
+
+        return response()->json(['message' => 'Hotel deleted successfully'], 200);
     }
-
-    $hotel->delete();
-
-    return response()->json(['message' => 'Hotel deleted successfully'], 200);
-}
 
 }
