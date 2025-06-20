@@ -25,7 +25,7 @@ class RoomController extends RestController
 
     public function roomList(Request $request)
     {
-        $perPage = 10;
+        $perPage = 50;
 
         Log::info('--- Room list request received ---');
         Log::debug('Request query:', $request->all());
