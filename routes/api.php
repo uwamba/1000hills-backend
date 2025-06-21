@@ -69,6 +69,7 @@ Route::get('/booked-seats/{objectId}', [BookingController::class, 'getBookedSeat
 Route::post('/booking/ticket', [BookingController::class, 'bookingTicket']);
 
 Route::get('/hotels/names', [HotelController::class, 'getAllHotelNames']);
+Route::get('/download-contract/{id}', [HotelController::class, 'download']);
 Route::get('/apartment-owners/names', [ApartmentOwnerController::class, 'getAllOwnerNames']);
 Route::apiResource('retreats', RetreatController::class);
 Route::get('/seat-types/names', [SeatTypeController::class, 'getAllSeatTypeNames']);
