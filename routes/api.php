@@ -97,6 +97,7 @@ Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJour
 Route::middleware('authAny')->group(function () {
 
    Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
+   Route::get('/apartment-bookings', [BookingController::class, 'apartmentBookings']);
 
    Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
