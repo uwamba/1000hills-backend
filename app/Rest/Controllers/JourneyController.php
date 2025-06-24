@@ -12,44 +12,44 @@ class JourneyController extends RestController
     public function index()
     {
         return JourneyResource::collection(
-    Journey::with(['bus.agency', 'bus.seatType'])->get()
-    );
+            Journey::with(['bus.agency', 'bus.seatType'])->get()
+        );
 
     }
 
-    
 
-public function journeyList(Request $request)
-{
-    $query = Journey::with(['bus.agency', 'bus.seatType']);
 
-    // Filter by search (route or agency name)
-    if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('route', 'like', '%' . $search . '%')
-              ->orWhereHas('bus.agency', function ($q2) use ($search) {
-                  $q2->where('name', 'like', '%' . $search . '%');
-              });
-        });
+    public function journeyList(Request $request)
+    {
+        $query = Journey::with(['bus.agency', 'bus.seatType']);
+
+        // Filter by search (route or agency name)
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('route', 'like', '%' . $search . '%')
+                    ->orWhereHas('bus.agency', function ($q2) use ($search) {
+                        $q2->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        // Filter by agency
+        if ($request->filled('agency')) {
+            $query->whereHas('bus.agency', function ($q) use ($request) {
+                $q->where('name', $request->input('agency'));
+            });
+        }
+
+        // Filter by departure date
+        if ($request->filled('departure_date')) {
+            $query->whereDate('departure', $request->input('departure_date'));
+        }
+
+        return JourneyResource::collection($query->get());
     }
 
-    // Filter by agency
-    if ($request->filled('agency')) {
-        $query->whereHas('bus.agency', function ($q) use ($request) {
-            $q->where('name', $request->input('agency'));
-        });
-    }
-
-    // Filter by departure date
-    if ($request->filled('departure_date')) {
-        $query->whereDate('departure', $request->input('departure_date'));
-    }
-
-    return JourneyResource::collection($query->get());
-}
-
- public function featuredJourneyList()
+    public function featuredJourneyList()
     {
         $hotels = Journey::take(3)->get();
 
@@ -100,73 +100,80 @@ public function journeyList(Request $request)
         return new JourneyResource($journey);
     }
 
-   public function updateStatus(Request $request, $id) {
-    $journey = Journey::findOrFail($id);
-    $journey->status = $request->input('status');
-    $journey->save();
+    public function updateStatus(Request $request, $id)
+    {
+        $journey = Journey::findOrFail($id);
+        $journey->status = $request->input('status');
+        $journey->save();
 
-    return response()->json(['message' => 'Status updated']);
-}
-
-public function destroy($id) {
-    $journey = Journey::findOrFail($id);
-    $journey->delete();
-
-    return response()->json(['message' => 'Journey deleted']);
-}
-
-public function journeyListWithSeats(Request $request)
-{
-    $query = Journey::with([
-        'bus.agency',
-        'bus.seatType',
-        'bookings' => function ($q) {
-            $q->select('id', 'seat', 'object_id', 'object_type')
-              ->where('object_type', 'ticket');
-        },
-    ]);
-
-    if ($request->filled('search')) {
-        $search = $request->input('search');
-        $query->where(function ($q) use ($search) {
-            $q->where('from', 'like', '%' . $search . '%')
-              ->orWhere('to', 'like', '%' . $search . '%')
-              ->orWhereHas('bus.agency', function ($q2) use ($search) {
-                  $q2->where('name', 'like', '%' . $search . '%');
-              });
-        });
+        return response()->json(['message' => 'Status updated']);
     }
 
-    if ($request->filled('agency')) {
-        $query->whereHas('bus.agency', function ($q) use ($request) {
-            $q->where('name', $request->input('agency'));
-        });
+    public function destroy($id)
+    {
+        $journey = Journey::findOrFail($id);
+        $journey->delete();
+
+        return response()->json(['message' => 'Journey deleted']);
     }
 
-    if ($request->filled('departure_date')) {
-        $query->whereDate('departure', $request->input('departure_date'));
+    public function journeyListWithSeats(Request $request)
+    {
+        $query = Journey::with([
+            'bus.agency',
+            'bus.seatType',
+            'bookings' => function ($q) {
+                $q->select('id', 'seat', 'object_id', 'object_type')
+                    ->where('object_type', 'ticket');
+            },
+        ]);
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('from', 'like', '%' . $search . '%')
+                    ->orWhere('to', 'like', '%' . $search . '%')
+                    ->orWhereHas('bus.agency', function ($q2) use ($search) {
+                        $q2->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        if ($request->filled('agency')) {
+            $query->whereHas('bus.agency', function ($q) use ($request) {
+                $q->where('name', $request->input('agency'));
+            });
+        }
+
+        if ($request->filled('departure_date')) {
+            $query->whereDate('departure', $request->input('departure_date'));
+        }
+
+        $journeys = $query->get();
+
+        return response()->json([
+            'data' => $journeys->map(function ($journey) {
+                return [
+                    'id' => $journey->id,
+                    'from' => $journey->from,
+                    'to' => $journey->to,
+                    'departure' => $journey->departure,
+                    'bus' => [
+                        'id' => $journey->bus->id,
+                        'number_plate' => $journey->bus->number_plate ?? null,
+                        'agency' => $journey->bus->agency->name ?? null,
+                        'seatType' => [
+                            'name' => $journey->bus->seatType->name ?? null,
+                            'row' => $journey->bus->seatType->row ?? 0,
+                            'column' => $journey->bus->seatType->column ?? 0,
+                            'exclude' => $journey->bus->seatType->exclude ?? [],
+                        ],
+                    ],
+                    'booked_seats' => $journey->bookings->pluck('seat')->filter()->toArray(),
+                ];
+            }),
+        ]);
     }
-
-    $journeys = $query->get();
-
-    return response()->json([
-        'data' => $journeys->map(function ($journey) {
-            return [
-                'id' => $journey->id,
-                'from' => $journey->from,
-                'to' => $journey->to,
-                'departure' => $journey->departure,
-                'bus' => [
-                    'id' => $journey->bus->id,
-                    'number_plate' => $journey->bus->number_plate ?? null,
-                    'agency' => $journey->bus->agency->name ?? null,
-                    'seat_type' => $journey->bus->seatType->layout ?? null,
-                ],
-                'booked_seats' => $journey->bookings->pluck('seat')->filter()->toArray(),
-            ];
-        }),
-    ]);
-}
 
 
 
