@@ -122,7 +122,7 @@ public function journeyListWithSeats(Request $request)
         'bus.seatType',
         'bookings' => function ($q) {
             $q->select('id', 'seat', 'object_id', 'object_type')
-              ->where('object_type', 'journey');
+              ->where('object_type', 'ticket');
         },
     ]);
 
