@@ -149,7 +149,8 @@ class JourneyController extends RestController
             $query->whereDate('departure', $request->input('departure_date'));
         }
 
-        $journeys = $query->get();
+        $journeys = $query->orderBy('created_at', 'desc')->get();
+
 
         return response()->json([
             'data' => $journeys->map(function ($journey) {
