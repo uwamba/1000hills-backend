@@ -160,7 +160,7 @@ class JourneyController extends RestController
                     'departure' => $journey->departure,
                     'bus' => [
                         'id' => $journey->bus->id,
-                        'number_plate' => $journey->bus->number_plate ?? null,
+                        'number_plate' => $journey->bus->name ?? null,
                         'agency' => $journey->bus->agency->name ?? null,
                         'seatType' => [
                             'name' => $journey->bus->seatType->name ?? null,
