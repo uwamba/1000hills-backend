@@ -120,12 +120,11 @@ public function journeyListWithSeats(Request $request)
     $query = Journey::with([
         'bus.agency',
         'bus.seatType',
-    ])->with(['tickets' => function ($q) {
-        $q->select('id', 'seat', 'bus_id', 'booking_id', 'object_id')
-          ->whereHas('booking', function ($subQ) {
-              $subQ->where('object_type', 'journey');
-          });
-    }]);
+        'bookings' => function ($q) {
+            $q->select('id', 'seat', 'object_id', 'object_type')
+              ->where('object_type', 'journey');
+        },
+    ]);
 
     if ($request->filled('search')) {
         $search = $request->input('search');
@@ -163,11 +162,12 @@ public function journeyListWithSeats(Request $request)
                     'agency' => $journey->bus->agency->name ?? null,
                     'seat_type' => $journey->bus->seatType->layout ?? null,
                 ],
-                'booked_seats' => $journey->tickets->pluck('seat')->toArray(),
+                'booked_seats' => $journey->bookings->pluck('seat')->filter()->toArray(),
             ];
         }),
     ]);
 }
+
 
 
 
