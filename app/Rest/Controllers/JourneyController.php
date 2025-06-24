@@ -118,8 +118,7 @@ public function destroy($id) {
 public function journeyListWithSeats(Request $request)
 {
     $query = Journey::with([
-        'bus.agency',
-        'bus.seatType',
+        'bus',
         'bookings' => function ($q) {
             $q->select('id', 'seat', 'object_id', 'object_type')
               ->where('object_type', 'ticket');
