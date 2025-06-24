@@ -70,5 +70,10 @@ class Journey extends Model
     {
         static::addGlobalScope(new AdminAgencyJourneyScope);
     }
+    public function tickets()
+{
+    return $this->hasManyThrough(Ticket::class, Booking::class, 'object_id', 'booking_id')
+        ->where('bookings.object_type', 'journey');
+}
 
 }

@@ -17,6 +17,8 @@ class JourneyController extends RestController
 
     }
 
+    
+
 public function journeyList(Request $request)
 {
     $query = Journey::with(['bus.agency', 'bus.seatType']);
@@ -112,4 +114,61 @@ public function destroy($id) {
 
     return response()->json(['message' => 'Journey deleted']);
 }
+
+public function journeyListWithSeats(Request $request)
+{
+    $query = Journey::with([
+        'bus.agency',
+        'bus.seatType',
+    ])->with(['tickets' => function ($q) {
+        $q->select('id', 'seat', 'bus_id', 'booking_id', 'object_id')
+          ->whereHas('booking', function ($subQ) {
+              $subQ->where('object_type', 'journey');
+          });
+    }]);
+
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('from', 'like', '%' . $search . '%')
+              ->orWhere('to', 'like', '%' . $search . '%')
+              ->orWhereHas('bus.agency', function ($q2) use ($search) {
+                  $q2->where('name', 'like', '%' . $search . '%');
+              });
+        });
+    }
+
+    if ($request->filled('agency')) {
+        $query->whereHas('bus.agency', function ($q) use ($request) {
+            $q->where('name', $request->input('agency'));
+        });
+    }
+
+    if ($request->filled('departure_date')) {
+        $query->whereDate('departure', $request->input('departure_date'));
+    }
+
+    $journeys = $query->get();
+
+    return response()->json([
+        'data' => $journeys->map(function ($journey) {
+            return [
+                'id' => $journey->id,
+                'from' => $journey->from,
+                'to' => $journey->to,
+                'departure' => $journey->departure,
+                'bus' => [
+                    'id' => $journey->bus->id,
+                    'number_plate' => $journey->bus->number_plate ?? null,
+                    'agency' => $journey->bus->agency->name ?? null,
+                    'seat_type' => $journey->bus->seatType->layout ?? null,
+                ],
+                'booked_seats' => $journey->tickets->pluck('seat')->toArray(),
+            ];
+        }),
+    ]);
+}
+
+
+
 }

@@ -108,6 +108,10 @@ Route::middleware('authAny')->group(function () {
    Route::apiResource('hotels', HotelController::class);
 
 
+   Route::get('/journeys-with-seats', [JourneyController::class, 'journeyListWithSeats']);
+
+
+
    Route::apiResource('apartment-owners', ApartmentOwnerController::class);
 
    Route::apiResource('rooms', RoomController::class);
