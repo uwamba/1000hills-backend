@@ -58,7 +58,7 @@ class BookingController extends RestController
     
     public function apartmentBookings()
     {
-        $apartmentBookings = Booking::where('object_type', 'apartment')
+        $apartmentBookings = Booking::forAdminRooms()
             ->with(['apartment', 'client']) // 'object' is the polymorphic relationship
             ->get();
     
