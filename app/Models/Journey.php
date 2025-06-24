@@ -57,6 +57,11 @@ class Journey extends Model
         return $this->belongsTo(Agency::class);
     }
 
+    public function bookings()
+{
+    return $this->hasMany(Booking::class, 'object_id')->where('object_type', 'ticket');
+}
+
 
     /**
      * User who deleted this record.
