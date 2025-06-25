@@ -125,7 +125,7 @@ class JourneyController extends RestController
         'bookings' => function ($q) {
             $q->select('id', 'seat', 'object_id', 'object_type', 'client_id')
               ->where('object_type', 'ticket')
-              ->with('client:id,name,email,phone'); // Load client info (customize fields as needed)
+              ->with('client:id,names,email,phone'); // Load client info (customize fields as needed)
         },
     ]);
 
@@ -176,7 +176,7 @@ class JourneyController extends RestController
                         'seat' => $booking->seat,
                         'client' => [
                             'id' => $booking->client->id ?? null,
-                            'name' => $booking->client->name ?? null,
+                            'name' => $booking->client->names ?? null,
                             'email' => $booking->client->email ?? null,
                             'phone' => $booking->client->phone ?? null,
                         ],
