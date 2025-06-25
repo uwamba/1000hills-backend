@@ -98,7 +98,7 @@ Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJour
 Route::middleware('authAny')->group(function () {
 
    // routes/api.php
-    Route::middleware('auth:admin')->get('/admin/dashboard/stats', [DashboardController::class, 'getStatistics']);
+   Route::get('/admin/dashboard/stats', [DashboardController::class, 'getStatistics']);
 
 
    Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
