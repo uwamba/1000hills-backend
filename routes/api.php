@@ -25,6 +25,7 @@ use App\Rest\Controllers\SeatTypeController;
 use App\Rest\Controllers\JourneyController;
 use App\Rest\Controllers\OtpController;
 use App\Rest\Controllers\BookingController as TransportBookingController;
+use App\Rest\Controllers\DashboardController;
 
 use App\Rest\Controllers\ContactController;
 
