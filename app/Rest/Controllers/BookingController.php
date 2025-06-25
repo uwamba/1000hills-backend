@@ -67,7 +67,17 @@ class BookingController extends RestController
             'data' => $apartmentBookings,
         ]);
     }
+    public function ticketBookings()
+    {
+        $ticketBookings = Booking::forAdminTickets()
+            ->with(['ticket', 'client']) // 'object' is the polymorphic relationship
+            ->get();
     
+        return response()->json([
+            'message' => 'Ticket bookings retrieved successfully',
+            'data' => $ticketBookings,
+        ]);
+    }
 
 
 

@@ -103,6 +103,7 @@ Route::middleware('authAny')->group(function () {
 
    Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
    Route::get('/apartment-bookings', [BookingController::class, 'apartmentBookings']);
+   Route::get('/ticket-bookings', [BookingController::class, 'ticketBookings']);
 
    Route::apiResource('apartments', ApartmentController::class);
    Route::apiResource('accounts', AccountController::class);
