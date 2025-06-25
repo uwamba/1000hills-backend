@@ -118,63 +118,75 @@ class JourneyController extends RestController
     }
 
     public function journeyListWithSeats(Request $request)
-    {
-        $query = Journey::with([
-            'bus.agency',
-            'bus.seatType',
-            'bookings' => function ($q) {
-                $q->select('id', 'seat', 'object_id', 'object_type')
-                    ->where('object_type', 'ticket');
-            },
-        ]);
+{
+    $query = Journey::with([
+        'bus.agency',
+        'bus.seatType',
+        'bookings' => function ($q) {
+            $q->select('id', 'seat', 'object_id', 'object_type', 'client_id')
+              ->where('object_type', 'ticket')
+              ->with('client:id,name,email,phone'); // Load client info (customize fields as needed)
+        },
+    ]);
 
-        if ($request->filled('search')) {
-            $search = $request->input('search');
-            $query->where(function ($q) use ($search) {
-                $q->where('from', 'like', '%' . $search . '%')
-                    ->orWhere('to', 'like', '%' . $search . '%')
-                    ->orWhereHas('bus.agency', function ($q2) use ($search) {
-                        $q2->where('name', 'like', '%' . $search . '%');
-                    });
-            });
-        }
-
-        if ($request->filled('agency')) {
-            $query->whereHas('bus.agency', function ($q) use ($request) {
-                $q->where('name', $request->input('agency'));
-            });
-        }
-
-        if ($request->filled('departure_date')) {
-            $query->whereDate('departure', $request->input('departure_date'));
-        }
-
-        $journeys = $query->orderBy('created_at', 'desc')->get();
-
-
-        return response()->json([
-            'data' => $journeys->map(function ($journey) {
-                return [
-                    'id' => $journey->id,
-                    'from' => $journey->from,
-                    'to' => $journey->to,
-                    'departure' => $journey->departure,
-                    'bus' => [
-                        'id' => $journey->bus->id,
-                        'number_plate' => $journey->bus->name ?? null,
-                        'agency' => $journey->bus->agency->name ?? null,
-                        'seatType' => [
-                            'name' => $journey->bus->seatType->name ?? null,
-                            'row' => $journey->bus->seatType->row ?? 0,
-                            'column' => $journey->bus->seatType->column ?? 0,
-                            'exclude' => $journey->bus->seatType->exclude ?? [],
-                        ],
-                    ],
-                    'booked_seats' => $journey->bookings->pluck('seat')->filter()->toArray(),
-                ];
-            }),
-        ]);
+    if ($request->filled('search')) {
+        $search = $request->input('search');
+        $query->where(function ($q) use ($search) {
+            $q->where('from', 'like', '%' . $search . '%')
+              ->orWhere('to', 'like', '%' . $search . '%')
+              ->orWhereHas('bus.agency', function ($q2) use ($search) {
+                  $q2->where('name', 'like', '%' . $search . '%');
+              });
+        });
     }
+
+    if ($request->filled('agency')) {
+        $query->whereHas('bus.agency', function ($q) use ($request) {
+            $q->where('name', $request->input('agency'));
+        });
+    }
+
+    if ($request->filled('departure_date')) {
+        $query->whereDate('departure', $request->input('departure_date'));
+    }
+
+    $journeys = $query->orderBy('created_at', 'desc')->get();
+
+    return response()->json([
+        'data' => $journeys->map(function ($journey) {
+            return [
+                'id' => $journey->id,
+                'from' => $journey->from,
+                'to' => $journey->to,
+                'departure' => $journey->departure,
+                'bus' => [
+                    'id' => $journey->bus->id,
+                    'number_plate' => $journey->bus->name ?? null,
+                    'agency' => $journey->bus->agency->name ?? null,
+                    'seatType' => [
+                        'name' => $journey->bus->seatType->name ?? null,
+                        'row' => $journey->bus->seatType->row ?? 0,
+                        'column' => $journey->bus->seatType->column ?? 0,
+                        'exclude' => $journey->bus->seatType->exclude ?? [],
+                    ],
+                ],
+                'bookings' => $journey->bookings->map(function ($booking) {
+                    return [
+                        'id' => $booking->id,
+                        'seat' => $booking->seat,
+                        'client' => [
+                            'id' => $booking->client->id ?? null,
+                            'name' => $booking->client->name ?? null,
+                            'email' => $booking->client->email ?? null,
+                            'phone' => $booking->client->phone ?? null,
+                        ],
+                    ];
+                })->toArray(),
+            ];
+        }),
+    ]);
+}
+
 
 
 
