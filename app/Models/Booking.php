@@ -104,4 +104,51 @@ class Booking extends Model
 
         return $query;
     }
+
+    public function scopeForAdminApartments($query)
+    {
+        // First apply object_type = 'room'
+        $query->where('object_type', 'apartment');
+
+        // Check admin guard
+        if (!Auth::guard('admin')->check()) {
+            // Not an admin: we leave it as plain forRooms()
+            // Alternatively, you could force no results:
+            // $query->whereRaw('0 = 1');
+            return $query;
+        }
+
+        $admin = Auth::guard('admin')->user();
+
+        // Fetch admin_manage entries for 'room' and 'hotel'
+        $manages = $admin->manages()->whereIn('object', ['apartment'])->get()->groupBy('object');
+
+        // If admin manages nothing relevant, force no results (optional); or skip further filtering:
+        if ($manages->isEmpty()) {
+            // Uncomment to force empty:
+            // return $query->whereRaw('0 = 1');
+            // Otherwise, return only object_type filter (all room bookings)
+            return $query;
+        }
+
+        // Wrap additional conditions in a nested where to combine with object_type
+        $query->where(function ($q) use ($manages) {
+            
+
+            if (isset($manages['apartment'])) {
+                $aprtIds = $manages['apartment']->pluck('object_id')->toArray();
+                if (!empty($aprtIds)) {
+                    $q->orWhereHasMorph(
+                        'object',
+                        [Apartment::class],
+                        function ($q2) use ($aprtIds) {
+                            $q2->whereIn('apartment_owner_id', $aprtIds);
+                        }
+                    );
+                }
+            }
+        });
+
+        return $query;
+    }
 }
