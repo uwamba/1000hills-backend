@@ -96,6 +96,10 @@ Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJour
 // Authentication and Authorization Middleware example refer to this for other role protect routes
 Route::middleware('authAny')->group(function () {
 
+   // routes/api.php
+    Route::middleware('auth:admin')->get('/admin/dashboard/stats', [DashboardController::class, 'getStatistics']);
+
+
    Route::get('/room-bookings', [BookingController::class, 'roomBookings']);
    Route::get('/apartment-bookings', [BookingController::class, 'apartmentBookings']);
 
