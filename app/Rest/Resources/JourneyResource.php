@@ -38,6 +38,11 @@ class JourneyResource extends JsonResource
             ],
         ],
         'status' => $this->status,
+        'time' => $this->time,
+        'currency' => [
+            'currency_code' => $this->exchangeRate?->currency_code,
+            'rate_to_usd' => $this->exchangeRate?->rate_to_usd,
+        ],
         'updated_by' => $this->updated_by,
         'deleted_by' => $this->deleted_by,
         'deleted_on' => $this->deleted_on,
