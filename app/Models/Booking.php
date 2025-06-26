@@ -18,6 +18,11 @@ class Booking extends Model
     'client_id',
     'seat',
     'amount_to_pay',
+    'currency_code',
+    'currency_rate_to_usd',
+    'payment_method',
+    'extra_note',
+    'momo_number',
     'status',        // New field
     'updated_by',    // New field
     'deleted_by',    // New field

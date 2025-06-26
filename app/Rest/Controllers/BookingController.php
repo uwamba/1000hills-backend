@@ -55,13 +55,13 @@ class BookingController extends RestController
             'data' => $roomBookings,
         ]);
     }
-    
+
     public function apartmentBookings()
     {
         $apartmentBookings = Booking::forAdminApartments()
             ->with(['apartment', 'client']) // 'object' is the polymorphic relationship
             ->get();
-    
+
         return response()->json([
             'message' => 'Apartment bookings retrieved successfully',
             'data' => $apartmentBookings,
@@ -72,7 +72,7 @@ class BookingController extends RestController
         $ticketBookings = Booking::forAdminTickets()
             ->with(['ticket', 'client']) // 'object' is the polymorphic relationship
             ->get();
-    
+
         return response()->json([
             'message' => 'Ticket bookings retrieved successfully',
             'data' => $ticketBookings,
@@ -283,15 +283,19 @@ class BookingController extends RestController
                 'email' => 'required|email',
                 'names' => 'required|string',
                 'phone' => 'required|string',
+                'country' => 'required|string',
                 'object_type' => 'required|string|max:255',
                 'object_id' => 'required',
-                'amount_to_pay' => 'required',
+                'amount_to_pay' => 'required|numeric',
+                'currency_code' => 'nullable|string|max:10',
+                'currency_rate_to_usd' => 'nullable|numeric',
                 'status' => 'nullable|string|max:50',
-                'payment_method' => 'required|string',
+                'payment_method' => 'required|string|max:50',
                 'momo_number' => 'nullable|string|max:20',
-                'country' => 'required|string',
+                'extra_note' => 'nullable|string',
                 'seat' => 'nullable|string|max:20',
             ]);
+
         } catch (ValidationException $e) {
             Log::error('Validation failed', [
                 'errors' => $e->errors(),
