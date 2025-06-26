@@ -12,7 +12,7 @@ class JourneyController extends RestController
     public function index()
     {
         return JourneyResource::collection(
-            Journey::with(['bus.agency', 'bus.seatType','exchangeRate'])->get()
+            Journey::with(['bus.agency', 'bus.seatType','exchangeRate'])->latest()->get()
         );
 
     }
@@ -46,7 +46,7 @@ class JourneyController extends RestController
             $query->whereDate('departure', $request->input('departure_date'));
         }
 
-        return JourneyResource::collection($query->get());
+        return JourneyResource::collection($query->latest()->get());
     }
 
     public function featuredJourneyList()
