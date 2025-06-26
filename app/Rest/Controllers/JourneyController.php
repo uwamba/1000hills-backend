@@ -21,7 +21,7 @@ class JourneyController extends RestController
 
     public function journeyList(Request $request)
     {
-        $query = Journey::with(['bus.agency', 'bus.seatType']);
+        $query = Journey::with(['bus.agency', 'bus.seatType','exchangeRate']);
 
         // Filter by search (route or agency name)
         if ($request->filled('search')) {
