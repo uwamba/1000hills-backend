@@ -363,6 +363,10 @@ class BookingController extends RestController
                 'account' => $client->email,
                 'type' => 'booking',
                 'status' => 'pending',
+                'currency_code' => $validated['currency_code'] ?? 'USD',
+                'currency_rate_to_usd' => $validated['currency_rate_to_usd'] ?? 1.0, // Default to 1.0 if not provided
+                'payment_method' => $validated['payment_method'],
+                'extra_note' => $validated['extra_note'] ?? null,
                 'created_by' => Auth::id(),
             ]);
 
@@ -387,7 +391,7 @@ class BookingController extends RestController
             // 1️⃣ Generate Flutterwave payment link
             $response = $this->makeFlutterwavePaymentLink(
                 $booking->amount_to_pay,
-                "USD", // Currency
+                $validated['currency_code'] ?? 'USD', // Currency
                 $booking->client->email
             );
 
