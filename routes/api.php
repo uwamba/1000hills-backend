@@ -92,7 +92,7 @@ Route::get('/client/featured-rooms', [RoomController::class, 'featuredRoomList']
 Route::get('/client/featured-events', [RetreatController::class, 'featuredEventList']);
 Route::get('/client/featured-apartments', [ApartmentController::class, 'featuredApartemntList']);
 Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJourneyList']);
-
+Route::get('/client/exchange-rates', [ExchangeRateController::class, 'index']);
 
 
 // Authentication and Authorization Middleware example refer to this for other role protect routes
