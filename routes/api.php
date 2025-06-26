@@ -28,6 +28,7 @@ use App\Rest\Controllers\BookingController as TransportBookingController;
 use App\Rest\Controllers\DashboardController;
 
 use App\Rest\Controllers\ContactController;
+use App\Rest\Controllers\ExchangeRateController;
 
 
 
@@ -96,6 +97,14 @@ Route::get('/client/featured-journeys', [JourneyController::class, 'featuredJour
 
 // Authentication and Authorization Middleware example refer to this for other role protect routes
 Route::middleware('authAny')->group(function () {
+
+
+
+
+Route::get('/exchange-rates', [ExchangeRateController::class, 'index']);
+Route::post('/exchange-rates', [ExchangeRateController::class, 'storeOrUpdate']);
+Route::delete('/exchange-rates/{code}', [ExchangeRateController::class, 'destroy']);
+
 
    // routes/api.php
    Route::get('/admin/dashboard/stats', [DashboardController::class, 'getStatistics']);
