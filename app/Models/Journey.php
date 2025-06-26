@@ -17,6 +17,7 @@ class Journey extends Model
         'return',
         'bus_id',
         'price',
+        'currency',
         'status',
         'time',
         'updated_by',
@@ -42,6 +43,11 @@ class Journey extends Model
     {
         return $this->belongsTo(Bus::class, 'bus_id');
     }
+
+    public function exchangeRate()
+{
+    return $this->belongsTo(ExchangeRate::class, 'currency', 'currency_code');
+}
     
 
     /**
