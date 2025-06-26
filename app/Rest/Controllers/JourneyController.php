@@ -12,7 +12,7 @@ class JourneyController extends RestController
     public function index()
     {
         return JourneyResource::collection(
-            Journey::with(['bus.agency', 'bus.seatType'])->get()
+            Journey::with(['bus.agency', 'bus.seatType','exchangeRate'])->get()
         );
 
     }
