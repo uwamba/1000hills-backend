@@ -348,6 +348,11 @@ class BookingController extends RestController
                 'to_date_time' => now()->addHours(2),// Assuming Journey has these fields
                 'amount_to_pay' => $validated['amount_to_pay'],
                 'status' => $validated['status'] ?? "pending",
+                'currency_code' => $validated['currency_code'] ?? 'USD',
+                'currency_rate_to_usd' => $validated['currency_rate_to_usd'] ?? 1.0, // Default to 1.0 if not provided
+                'payment_method' => $validated['payment_method'],
+                'extra_note' => $validated['extra_note'] ?? null,
+                'momo_number' => $validated['momo_number'] ?? null,
                 'seat' => $validated['seat'] ?? null,
             ]);
 
