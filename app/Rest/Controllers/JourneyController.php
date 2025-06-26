@@ -58,21 +58,22 @@ class JourneyController extends RestController
     }
 
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'from' => 'required|string|max:255',
-            'to' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'departure' => 'required|date',
-            'return' => 'nullable|date',
-            'bus_id' => 'required|exists:buses,id',
-            'time' => 'required|date_format:H:i',
-        ]);
+{
+    $validated = $request->validate([
+        'from' => 'required|string|max:255',
+        'to' => 'required|string|max:255',
+        'price' => 'required|numeric',
+        'currency' => 'required|string|max:3', // ISO currency code, e.g., USD
+        'departure' => 'required|date',
+        'return' => 'nullable|date',
+        'bus_id' => 'required|exists:buses,id',
+        'time' => 'required|date_format:H:i',
+    ]);
 
-        $journey = Journey::create($validated);
+    $journey = Journey::create($validated);
 
-        return new JourneyResource($journey);
-    }
+    return new JourneyResource($journey);
+}
 
     public function show(Journey $journey)
     {
