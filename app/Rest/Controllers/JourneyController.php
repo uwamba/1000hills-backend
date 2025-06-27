@@ -6,6 +6,7 @@ use App\Rest\Controller as RestController;
 use App\Models\Journey;
 use App\Rest\Resources\JourneyResource;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JourneyController extends RestController
 {
@@ -22,6 +23,7 @@ class JourneyController extends RestController
     public function journeyList(Request $request)
     {
         $query = Journey::with(['bus.agency', 'bus.seatType','exchangeRate']);
+        $query->whereDate('departure', '>=', Carbon::today());
 
         // Filter by search (route or agency name)
         if ($request->filled('search')) {
