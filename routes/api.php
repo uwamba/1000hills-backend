@@ -149,9 +149,8 @@ Route::prefix('admin')->group(function () {
    Route::get('/', [AdminController::class, 'index']); // List all
    Route::put('/{id}', [AdminController::class, 'update']);
    Route::delete('/{id}', [AdminController::class, 'destroy']);
-   //Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
-   Route::post('/admin/{id}/reset-password', [AdminController::class, 'resetPassword']);
-
+   Route::post('/{id}/reset-password', [AdminController::class, 'resetPassword']);
+   
    Route::post('/{id}/activate', [AdminController::class, 'activate']);
    Route::post('/{id}/deactivate', [AdminController::class, 'deactivate']);
 });
