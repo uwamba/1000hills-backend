@@ -33,12 +33,7 @@ class RoomController extends RestController
         $fromNow = now();
 
         $query = Room::query()
-            ->leftJoin('bookings', function ($join) use ($fromNow) {
-                $join->on('bookings.object_id', '=', 'rooms.id')
-                    ->where('bookings.object_type', 'room')
-                    ->where('bookings.from_date_time', '>=', $fromNow);
-            })
-            ->with(['photos', 'hotel'])
+            ->with(['photos', 'hotel','bookings'])
             ->select('rooms.*');
 
 
