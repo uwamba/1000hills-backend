@@ -154,7 +154,7 @@ class RoomController extends RestController
         $room = Room::with('photos', 'hotel','booked', 'updatedBy', 'deletedBy')
             ->findOrFail($id);
 
-        $similarRooms = Room::where('hotel_id', '=', $room->id)
+        $similarRooms = Room::with('photos')->where('hotel_id', '=', $room->id)
             ->limit(6)
             ->get();
 
