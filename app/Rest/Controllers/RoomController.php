@@ -33,7 +33,7 @@ class RoomController extends RestController
         $fromNow = now();
 
         $query = Room::query()
-            ->with(['photos', 'hotel','bookings'])
+            ->with(['photos', 'hotel','booked'])
             ->select('rooms.*');
 
 
