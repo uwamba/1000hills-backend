@@ -30,7 +30,16 @@ class RoomController extends RestController
         Log::info('--- Room list request received ---');
         Log::debug('Request query:', $request->all());
 
-        $query = Room::with(['photos', 'hotel', 'futureBookings']);
+        $fromNow = now();
+
+        $query = Room::query()
+            ->leftJoin('bookings', function ($join) use ($fromNow) {
+                $join->on('bookings.object_id', '=', 'rooms.id')
+                    ->where('bookings.object_type', 'room')
+                    ->where('bookings.from_date_time', '>=', $fromNow);
+            })
+            ->with(['photos', 'hotel'])
+            ->select('rooms.*');
 
 
 
