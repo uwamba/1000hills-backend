@@ -84,8 +84,10 @@ class Room extends Model
     }
     public function booked()
     {
+        $fromNow = now();
         return $this->hasMany(Booking::class, 'object_id')
-            ->where('object_type', 'room');
+            ->where('object_type', 'room')
+            ->where('bookings.from_date_time', '>=', $fromNow);
     }
 
 
