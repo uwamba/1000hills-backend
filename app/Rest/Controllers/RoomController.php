@@ -24,65 +24,82 @@ class RoomController extends RestController
 
 
     public function roomList(Request $request)
-    {
-        $perPage = 50;
+{
+    $perPage = 50;
 
-        Log::info('--- Room list request received ---');
-        Log::debug('Request query:', $request->all());
+    Log::info('--- Room list request received ---');
+    Log::debug('Request query:', $request->all());
 
-        $fromNow = now();
+    $fromNow = now();
 
-        $query = Room::query()
-            ->leftJoin('bookings', function ($join) use ($fromNow) {
-                $join->on('bookings.object_id', '=', 'rooms.id')
-                    ->where('bookings.object_type', 'room')
-                    ->where('bookings.from_date_time', '>=', $fromNow);
-            })
-            ->with(['photos', 'hotel'])
-            ->select('rooms.*');
+    $query = Room::query()
+        ->leftJoin('bookings', function ($join) use ($fromNow) {
+            $join->on('bookings.object_id', '=', 'rooms.id')
+                ->where('bookings.object_type', 'room')
+                ->where('bookings.from_date_time', '>=', $fromNow);
+        })
+        ->with(['photos', 'hotel'])
+        ->select('rooms.*');
 
-
-
-        // Price filter
-        if ($request->filled('min_price')) {
-            Log::debug("Filtering rooms with price >= {$request->min_price}");
-            $query->where('price', '>=', $request->min_price);
-        }
-
-        if ($request->filled('max_price')) {
-            Log::debug("Filtering rooms with price <= {$request->max_price}");
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        // Availability filter
-        if ($request->filled('from_date') && $request->filled('to_date')) {
-            $from = $request->from_date;
-            $to = $request->to_date;
-
-            Log::debug("Filtering available rooms between: $from and $to");
-
-            $query->whereRaw("
-        NOT EXISTS (
-            SELECT 1 FROM bookings
-            WHERE bookings.object_type = 'room'
-              AND bookings.object_id = rooms.id
-              AND (
-                  (bookings.from_date_time BETWEEN ? AND ?)
-                  OR (bookings.to_date_time BETWEEN ? AND ?)
-                  OR (bookings.from_date_time <= ? AND bookings.to_date_time >= ?)
-              )
-        )
-    ", [$from, $to, $from, $to, $from, $to]);
-        } else {
-            Log::debug("No date filter applied");
-        }
-
-        $rooms = $query->paginate($perPage);
-
-        Log::info("Returning " . count($rooms) . " rooms on page {$rooms->currentPage()}");
-
-        return response()->json($rooms, 200);
+    // Price filter
+    if ($request->filled('min_price')) {
+        Log::debug("Filtering rooms with price >= {$request->min_price}");
+        $query->where('rooms.price', '>=', $request->min_price);
     }
+
+    if ($request->filled('max_price')) {
+        Log::debug("Filtering rooms with price <= {$request->max_price}");
+        $query->where('rooms.price', '<=', $request->max_price);
+    }
+
+    // Availability filter
+    if ($request->filled('from_date') && $request->filled('to_date')) {
+        $from = $request->from_date;
+        $to = $request->to_date;
+
+        Log::debug("Filtering available rooms between: $from and $to");
+
+        $query->whereRaw("
+            NOT EXISTS (
+                SELECT 1 FROM bookings
+                WHERE bookings.object_type = 'room'
+                  AND bookings.object_id = rooms.id
+                  AND (
+                      (bookings.from_date_time BETWEEN ? AND ?)
+                      OR (bookings.to_date_time BETWEEN ? AND ?)
+                      OR (bookings.from_date_time <= ? AND bookings.to_date_time >= ?)
+                  )
+            )
+        ", [$from, $to, $from, $to, $from, $to]);
+    } else {
+        Log::debug("No date filter applied");
+    }
+
+    $rooms = $query->paginate($perPage);
+
+    // Fetch bookings separately for rooms in current page
+    $roomIds = $rooms->pluck('id');
+    $bookings = Booking::where('object_type', 'room')
+        ->whereIn('object_id', $roomIds)
+        ->where('from_date_time', '>=', now())
+        ->get()
+        ->groupBy('object_id');
+
+    // Attach availability info to each room
+    $rooms->getCollection()->transform(function ($room) use ($bookings) {
+        $room->availability = ($bookings[$room->id] ?? collect())->map(function ($booking) {
+            return [
+                'from' => $booking->from_date_time->toDateTimeString(),
+                'to'   => $booking->to_date_time->toDateTimeString(),
+            ];
+        })->values();
+        return $room;
+    });
+
+    Log::info("Returning " . count($rooms) . " rooms on page {$rooms->currentPage()}");
+
+    return response()->json($rooms, 200);
+}
 
 
     public function featuredRoomList()
