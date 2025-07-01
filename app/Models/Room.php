@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Scopes\AdminHotelScope;
+use Carbon\Carbon;
+
 
 class Room extends Model
 {
@@ -85,6 +87,7 @@ class Room extends Model
     public function booked()
     {
         $fromNow = now();
+
         return $this->hasMany(Booking::class, 'object_id')
             ->where('object_type', 'room')
             ->where('bookings.from_date_time', '>=', $fromNow);
