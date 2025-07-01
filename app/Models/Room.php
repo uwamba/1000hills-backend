@@ -86,11 +86,11 @@ class Room extends Model
     }
     public function booked()
     {
-        $fromNow = now();
-
+        $today = now()->startOfDay()->toDateString(); // e.g. '2025-07-01'
+    
         return $this->hasMany(Booking::class, 'object_id')
             ->where('object_type', 'room')
-            ->where('bookings.from_date_time', '>=', $fromNow);
+            ->whereDate('bookings.from_date_time', '>=', $today);
     }
 
 
