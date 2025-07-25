@@ -46,12 +46,12 @@ class ApartmentResource extends JsonResource
                     'deleted_by' => $photo->deletedBy ? $photo->deletedBy->only(['id', 'name', 'email']) : null,
                 ];
             }),
-            'bookings' => $this->bookings->map(function ($booking) {
+            'bookings' => $this->activeBookings->map(function ($booking) {
              return [
                'from' => $booking->from_date_time,
                'to' => $booking->to_date_time,
              ];
-    }),
+            }),
 
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
