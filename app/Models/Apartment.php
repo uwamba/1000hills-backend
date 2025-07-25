@@ -78,8 +78,7 @@ class Apartment extends Model
     public function activeBookings()
 {
     return $this->morphMany(Booking::class, 'object')
-        ->where('object_type', 'apartment')
-        ->whereNull('deleted_on'); // Adjust status as per your system
+        ->where('object_type', 'apartment');// Adjust status as per your system
 }
 
 }
