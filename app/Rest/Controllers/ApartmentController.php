@@ -23,7 +23,9 @@ class ApartmentController extends RestController
 
      public function apartmentList(Request $request)
 {
-    $query = Apartment::with('photos');
+    //$query = Apartment::with('photos');
+    $query = Apartment::with(['photos', 'activeBookings:id,object_id,from_date_time,to_date_time']);
+
 
     // Determine which price to filter: night or month
     $priceField = match ($request->input('price_type')) {

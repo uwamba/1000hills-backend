@@ -75,4 +75,11 @@ class Apartment extends Model
     {
         static::addGlobalScope(new AdminApartmentScope);
     }
+    public function activeBookings()
+{
+    return $this->morphMany(Booking::class, 'object')
+        ->where('object_type', 'apartment')
+        ->whereNull('deleted_on'); // Adjust status as per your system
+}
+
 }
