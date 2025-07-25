@@ -26,7 +26,6 @@ class ApartmentController extends RestController
     $query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time']);
 
 // Log the entire result
-Log::info('Apartment Query Result:', $query->toArray());
 
 
     // Determine which price to filter: night or month
