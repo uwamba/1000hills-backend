@@ -62,7 +62,7 @@ class Apartment extends Model
     }
      public function bookings()
     {
-        return $this->hasMany(Booking::class, 'object')
+        return $this->hasMany(Booking::class, 'object_id')
             ->where('object_type', 'apartment');
     }
     public function apartemntOwner()
