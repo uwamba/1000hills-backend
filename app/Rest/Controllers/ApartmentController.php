@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 
-
 class ApartmentController extends RestController
 {
     public function index()
@@ -24,7 +23,13 @@ class ApartmentController extends RestController
      public function apartmentList(Request $request)
 {
     //$query = Apartment::with('photos');
-    $query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time']);
+   // $query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time']);
+
+
+$query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time'])->get();
+
+// Log the entire result
+Log::info('Apartment Query Result:', $query->toArray());
 
 
     // Determine which price to filter: night or month

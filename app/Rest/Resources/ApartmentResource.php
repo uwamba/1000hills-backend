@@ -47,10 +47,10 @@ class ApartmentResource extends JsonResource
                 ];
             }),
             'bookings' => $this->bookings->map(function ($booking) {
-        return [
-            'from' => $booking->from_date_time,
-            'to' => $booking->to_date_time,
-        ];
+             return [
+               'from' => $booking->from_date_time,
+               'to' => $booking->to_date_time,
+             ];
     }),
 
             'created_at' => $this->created_at,
