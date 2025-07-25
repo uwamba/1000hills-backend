@@ -23,10 +23,7 @@ class ApartmentController extends RestController
      public function apartmentList(Request $request)
 {
     //$query = Apartment::with('photos');
-   // $query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time']);
-
-
-$query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time'])->get();
+    $query = Apartment::with(['photos', 'bookings:id,object_id,from_date_time,to_date_time']);
 
 // Log the entire result
 Log::info('Apartment Query Result:', $query->toArray());
