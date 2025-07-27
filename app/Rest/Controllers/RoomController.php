@@ -94,7 +94,7 @@ class RoomController extends RestController
             'name' => 'required|string|max:255',
             'type' => 'required|string|max:255',
             'has_wireless' => 'required|boolean',
-            'bed_size' => 'required|string|max:255',
+            'bed_size' => 'nullable|string',
             'view' => 'nullable|string',
             'has_bathroom' => 'required|boolean',
             'price' => 'required|numeric',
