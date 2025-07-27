@@ -93,7 +93,14 @@ class Room extends Model
             ->whereDate('bookings.from_date_time', '>=', $today);
     }
 
-
+    public function activeBookings()
+    {
+        return $this->hasMany(Booking::class, 'object_id')
+            ->where('object_type', 'apartment')
+            ->whereDate('from_date_time', '>=', now()->toDateString())
+            ->whereNull('deleted_on') ;                   
+     
+    }
 
     protected static function booted()
     {

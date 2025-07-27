@@ -56,7 +56,12 @@ class RoomResource extends RestResource
             'has_sauna_massage',
             'has_kitchen',
             'has_fridge',
-
+            'bookings' => fn () => $this->activeBookings->map(function ($booking) {
+                return [
+                    'from' => $booking->from_date_time,
+                    'to' => $booking->to_date_time,
+                ];
+            }),
             // System fields
             'updated_by',
             'deleted_by',
