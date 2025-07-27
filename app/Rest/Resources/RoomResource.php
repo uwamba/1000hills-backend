@@ -38,7 +38,7 @@ class RoomResource extends RestResource
             'name',
             'type',
             'has_wireless',
-            'bed_size',
+            
             'view',
             'has_bathroom',
             'price',
