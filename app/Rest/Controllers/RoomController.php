@@ -36,8 +36,6 @@ class RoomController extends RestController
             ->with(['photos', 'hotel','booked'])
             ->select('rooms.*');
 
-        $query= Room::with(['photos', 'activeBookings:id,object_id,from_date_time,to_date_time']);
-
 
 
         // Price filter
