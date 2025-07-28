@@ -462,11 +462,14 @@ class BookingController extends RestController
             ],
         ];
 
-        $response = Http::withToken(env('FLUTTERWAVE_SECRET_KEY'))
-            ->post('https://api.flutterwave.com/v3/payments', $payload);
+        // Render the standard modal and get the redirect link
+        $paymentLink = Flutterwave::render('standard', $payload);
 
-        // ✅ Return the decoded JSON response or just the payment link
-        return $response->json(); // or return $response->json('data.link');
+        return response()->json([
+            'status' => 'success',
+            'payment_link' => $paymentLink,
+        ]);
+
     }
 
     private function requestMtnMomoPayment($amount, $currency, $momo_phone)
@@ -544,4 +547,9 @@ class BookingController extends RestController
 
         return response()->json(null, 204);
     }
+
+
+
+
+
 }
