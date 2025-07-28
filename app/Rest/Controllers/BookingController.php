@@ -174,13 +174,14 @@ class BookingController extends RestController
             Log::error('Unsupported object_type', ['object_type' => $objectType]);
             return response()->json(['message' => 'Unsupported object type'], 400);
         }
-
+       $uniqueId = uniqid();
         // Create booking
         try {
             $booking = Booking::create([
                 'from_date_time' => $validated['from_date_time'],
                 'to_date_time' => $validated['to_date_time'],
                 'client_id' => $client->id,
+                'transaction_ref' => $uniqueId,
                 'object_type' => $objectType,
                 'object_id' => $object->id,
                 'amount_to_pay' => $validated['amount_to_pay'],
@@ -220,7 +221,8 @@ class BookingController extends RestController
                 $booking->amount_to_pay,
                 $validated['currency_code'] ?? 'USD',
                 $booking->client->email,
-                env('PAYMENT_CALLBACK_URL') // ✅ Use value from .env
+                env('PAYMENT_CALLBACK_URL'),
+                $uniqueId
             );
             // Convert JsonResponse to array
             $payment = $response->getData(true); // "true" returns an array instead of stdClass
@@ -336,6 +338,7 @@ class BookingController extends RestController
         }
         Log::info('Room found', ['room_id' => $object->id]);
 
+       $uniqueId = uniqid();
 
 
         // Create booking
@@ -344,6 +347,7 @@ class BookingController extends RestController
                 'client_id' => $client->id,
                 'object_type' => $objectType,
                 'object_id' => $object->id,
+                'transaction_ref' => $uniqueId,
                 'from_date_time' => now(),
                 'to_date_time' => now()->addHours(2),// Assuming Journey has these fields
                 'amount_to_pay' => $validated['amount_to_pay'],
@@ -395,7 +399,8 @@ class BookingController extends RestController
                 $booking->amount_to_pay,
                 $validated['currency_code'] ?? 'USD',
                 $booking->client->email,
-                env('PAYMENT_CALLBACK_URL') // ✅ Use value from .env
+                env('PAYMENT_CALLBACK_URL'),
+                $uniqueId
             );
 
 
@@ -446,10 +451,20 @@ class BookingController extends RestController
 
     }
 
-    public function makeFlutterwavePaymentLink($amount, $currency, $email, $redirectUrl)
+    public function makeFlutterwavePaymentLink($amount, $currency, $email, $redirectUrl, $uniqueId)
     {
+        Log::info('Generating Flutterwave payment link', [
+            'amount' => $amount,
+            'currency' => $currency,
+            'email' => $email,
+            'redirect_url' => $redirectUrl,
+            'unique_id' => $uniqueId
+        ]);
+
+        // Prepare the payload for Flutterwave payment link
+
         $payload = [
-            'tx_ref' => 'booking-' . uniqid(),
+            'tx_ref' => $uniqueId,
             'amount' => $amount,
             'currency' => $currency,
             'redirect_url' => $redirectUrl,
