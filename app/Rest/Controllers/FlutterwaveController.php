@@ -52,9 +52,15 @@ class FlutterwaveController extends RestController
             $booking = Booking::where('transaction_ref', $txRef)->first();
 
             if ($booking) {
-                $booking->payment_status = 'paid';
+                $booking->status = 'approved'; // Update booking status
                 $booking->payment_provider_id = $transactionId;
                 $booking->save();
+            }
+            $payment=Payment::where('transaction_id', $txRef)->first();
+            if ($payment) {
+                $payment->status = 'paid'; // Update payment status
+                $payment->payment_method = 'flutterwave';
+                $payment->save();
             }
 
             return response()->json([
