@@ -25,23 +25,13 @@ class FlutterwaveController extends RestController
         }
 
         try {
-            $secretKey = env('FLW_SECRET_KEY');
-
-            $response = Http::withToken($secretKey)
-                ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
-
-            if ($response->failed()) {
-                return response()->json(['status' => 'error', 'message' => 'Flutterwave API failed.'], 500);
-            }
-
-            $data = $response->json();
+            // Use Flutterwave package method to verify
+            $payment = Flutterwave::transaction()->verify($transactionId);
 
             if (
-                isset($data['status']) &&
-                $data['status'] === 'success' &&
-                $data['data']['status'] === 'successful'
+                $payment['status'] === 'success' &&
+                $payment['data']['status'] === 'successful'
             ) {
-                // ✅ Optional: Update your booking status
                 $booking = Booking::where('transaction_ref', $txRef)->first();
 
                 if ($booking) {
