@@ -218,10 +218,10 @@ class BookingController extends RestController
             // 1️⃣ Generate Flutterwave payment link
             $response = $this->makeFlutterwavePaymentLink(
                 $booking->amount_to_pay,
-                "USD", // Currency
-                $booking->client->email
+                $validated['currency_code'] ?? 'USD',
+                $booking->client->email,
+                env('PAYMENT_CALLBACK_URL') // ✅ Use value from .env
             );
-
             // Convert JsonResponse to array
             $payment = $response->getData(true); // "true" returns an array instead of stdClass
 
@@ -389,11 +389,15 @@ class BookingController extends RestController
         $paymentLink = "";
         if ($request->payment_method === 'flutterwave') {
             // 1️⃣ Generate Flutterwave payment link
+
+
             $response = $this->makeFlutterwavePaymentLink(
                 $booking->amount_to_pay,
-                $validated['currency_code'] ?? 'USD', // Currency
-                $booking->client->email
+                $validated['currency_code'] ?? 'USD',
+                $booking->client->email,
+                env('PAYMENT_CALLBACK_URL') // ✅ Use value from .env
             );
+
 
             // Convert JsonResponse to array
             $payment = $response->getData(true); // "true" returns an array instead of stdClass
@@ -442,25 +446,27 @@ class BookingController extends RestController
 
     }
 
-    private function makeFlutterwavePaymentLink($amount, $currency, $email)
+    public function makeFlutterwavePaymentLink($amount, $currency, $email, $redirectUrl)
     {
-
         $payload = [
-            'tx_ref' => Flutterwave::generateTransactionReference(),
+            'tx_ref' => 'booking-' . uniqid(),
             'amount' => $amount,
             'currency' => $currency,
+            'redirect_url' => $redirectUrl,
             'customer' => [
                 'email' => $email,
             ],
+            'customizations' => [
+                'title' => 'Booking Payment',
+                'description' => 'Payment for your ticket booking',
+            ],
         ];
 
-        // Render the standard modal and get the redirect link
-        $paymentLink = Flutterwave::render('standard', $payload);
+        $response = Http::withToken(env('FLUTTERWAVE_SECRET_KEY'))
+            ->post('https://api.flutterwave.com/v3/payments', $payload);
 
-        return response()->json([
-            'status' => 'success',
-            'payment_link' => $paymentLink,
-        ]);
+        // ✅ Return the decoded JSON response or just the payment link
+        return $response->json(); // or return $response->json('data.link');
     }
 
     private function requestMtnMomoPayment($amount, $currency, $momo_phone)

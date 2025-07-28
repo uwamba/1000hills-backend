@@ -107,9 +107,9 @@ return [
      |
      */
 
-    'redirectUrl' => env('FLW_REDIRECT_URL', env('APP_URL') . '/flutterwave/payment/callback'),
+    'redirectUrl' => env('FLW_REDIRECT_URL', env('PAYMENT_CALLBACK_URL')),
 
-    'successUrl' => env('FLW_SUCCESS_URL', env('APP_URL') . '/flutterwave/payment/success'),
+    'successUrl' => env('FLW_SUCCESS_URL', env('PAYMENT_CALLBACK_URL')),
 
-    'cancelUrl' => env('FLW_CANCEL_URL', env('APP_URL') . '/flutterwave/payment/cancel'),
+    'cancelUrl' => env('FLW_CANCEL_URL', env('PAYMENT_CALLBACK_URL')),
 ];
