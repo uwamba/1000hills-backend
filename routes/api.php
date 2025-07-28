@@ -29,6 +29,7 @@ use App\Rest\Controllers\DashboardController;
 
 use App\Rest\Controllers\ContactController;
 use App\Rest\Controllers\ExchangeRateController;
+use App\Rest\Controllers\FlutterwaveController;
 
 
 
