@@ -57,6 +57,7 @@ Route::post('/flutterwave/payment', [PaymentController::class, 'makePayment']);
 Route::post('/flutterwave/payment/webhook', [PaymentController::class, 'handleWebhook']);
 Route::post('/payments/momo/request', [PaymentController::class, 'requestMtnMomoPayment']);
 
+Route::post('/flutterwave/verify', [FlutterwaveController::class, 'verifyPayment']);
 
 
 // Common
