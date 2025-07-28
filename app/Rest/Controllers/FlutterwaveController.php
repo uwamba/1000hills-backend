@@ -56,6 +56,7 @@ class FlutterwaveController extends RestController
                 if ($booking) {
                     Log::info("Booking found for tx_ref: {$txRef}", ['booking_id' => $booking->id]);
                     $booking->status = 'approved';
+                    $booking->payment_status = 'paid';
                     $booking->payment_provider_id = $transactionId;
                     $saved = $booking->save();
                     Log::info("Booking save result:", ['saved' => $saved]);
