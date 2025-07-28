@@ -9,7 +9,8 @@ use App\Models\Photo;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use Flutterwave\Payments\Facades\Flutterwave;
+use Illuminate\Support\Facades\Http;
+
 
 
 class FlutterwaveController extends RestController
@@ -25,13 +26,23 @@ class FlutterwaveController extends RestController
         }
 
         try {
-            // Use Flutterwave package method to verify
-            $payment = Flutterwave::transaction()->verify($transactionId);
+            $secretKey = env('FLW_SECRET_KEY');
+
+            $response = Http::withToken($secretKey)
+                ->get("https://api.flutterwave.com/v3/transactions/{$transactionId}/verify");
+
+            if ($response->failed()) {
+                return response()->json(['status' => 'error', 'message' => 'Flutterwave API failed.'], 500);
+            }
+
+            $data = $response->json();
 
             if (
-                $payment['status'] === 'success' &&
-                $payment['data']['status'] === 'successful'
+                isset($data['status']) &&
+                $data['status'] === 'success' &&
+                $data['data']['status'] === 'successful'
             ) {
+                // ✅ Optional: Update your booking status
                 $booking = Booking::where('transaction_ref', $txRef)->first();
 
                 if ($booking) {
