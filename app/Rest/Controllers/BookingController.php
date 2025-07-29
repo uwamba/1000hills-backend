@@ -94,6 +94,7 @@ class BookingController extends RestController
                 'names' => 'required|string',
                 'country' => 'required|string',
                 'phone' => 'required|string',
+                'currency_code' => 'nullable|string|max:10',
                 'object_type' => 'required|string|max:255',
                 'object_id' => 'required',
                 'amount_to_pay' => 'required',
@@ -181,6 +182,7 @@ class BookingController extends RestController
                 'from_date_time' => $validated['from_date_time'],
                 'to_date_time' => $validated['to_date_time'],
                 'client_id' => $client->id,
+                'currency_code' => $validated['currency_code'] ?? 'USD',
                 'transaction_ref' => $uniqueId,
                 'object_type' => $objectType,
                 'object_id' => $object->id,
@@ -193,6 +195,7 @@ class BookingController extends RestController
                 'client_id' => $client->id,
                 'amount_paid' => $booking->amount_to_pay, // Initial amount
                 'account' => $client->email,
+                'currency_code' => $validated['currency_code'] ?? 'USD',
                 'type' => $request->payment_method,
                 'status' => 'pending',
                 'created_by' => Auth::id(),
