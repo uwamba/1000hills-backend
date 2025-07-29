@@ -189,7 +189,7 @@ class BookingController extends RestController
             ]);
 
             $paymentModel = Payment::create([
-                'transaction_id' => $booking->id, // Placeholder until payment is made
+                'transaction_id' => $uniqueId, // Placeholder until payment is made
                 'client_id' => $client->id,
                 'amount_paid' => $booking->amount_to_pay, // Initial amount
                 'account' => $client->email,
@@ -361,7 +361,7 @@ class BookingController extends RestController
             ]);
 
             $payment = Payment::create([
-                'transaction_id' => $booking->id, // Placeholder until payment is made
+                'transaction_id' => $uniqueId, // Placeholder until payment is made
                 'client_id' => $client->id,
                 'amount_paid' => $booking->amount_to_pay, // Initial amount
                 'account' => $client->email,
