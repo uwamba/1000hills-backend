@@ -15,7 +15,7 @@ class PaymentResource extends JsonResource
         'client' => new ClientResource($this->whenLoaded('client')), // 👈 Include client
         'transaction_id' => $this->transaction_id,
         'amount_paid' => $this->amount_paid,
-        'currency_code' => $this->currency_code,
+        'currency' => $this->currency,
         'account' => $this->account,
         'type' => $this->type,
         'status' => $this->status,
