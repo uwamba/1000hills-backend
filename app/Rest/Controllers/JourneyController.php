@@ -7,12 +7,20 @@ use App\Models\Journey;
 use App\Rest\Resources\JourneyResource;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class JourneyController extends RestController
 {
    public function index()
 {
     $user = auth()->user();
+
+    Log::info('Journey index accessed', [
+        'user_id' => $user->id ?? null,
+        'user_name' => $user->name ?? null,
+        'user_email' => $user->email ?? null,
+        'user_role' => $user->role->name ?? 'No role assigned',
+    ]);
 
     $query = Journey::with(['bus.agency', 'bus.seatType', 'exchangeRate'])
         ->latest();
