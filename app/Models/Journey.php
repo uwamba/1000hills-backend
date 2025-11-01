@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Scopes\AdminAgencyJourneyScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Scopes\AdminAgencyJourneyScope;
+
 class Journey extends Model
 {
     use HasFactory;
@@ -20,6 +21,7 @@ class Journey extends Model
         'currency',
         'status',
         'time',
+        'created_by',
         'updated_by',
         'deleted_by',
         'deleted_on',
@@ -35,7 +37,6 @@ class Journey extends Model
      * Get the route associated with the journey.
      */
 
-
     /**
      * Get the bus assigned to the journey.
      */
@@ -45,10 +46,9 @@ class Journey extends Model
     }
 
     public function exchangeRate()
-{
-    return $this->belongsTo(ExchangeRate::class, 'currency', 'currency_code');
-}
-    
+    {
+        return $this->belongsTo(ExchangeRate::class, 'currency', 'currency_code');
+    }
 
     /**
      * User who last updated this record.
@@ -57,6 +57,7 @@ class Journey extends Model
     {
         return $this->belongsTo(User::class, 'updated_by');
     }
+
     // In Bus.php
     public function agency()
     {
@@ -64,10 +65,9 @@ class Journey extends Model
     }
 
     public function bookings()
-{
-    return $this->hasMany(Booking::class, 'object_id')->where('object_type', 'ticket');
-}
-
+    {
+        return $this->hasMany(Booking::class, 'object_id')->where('object_type', 'ticket');
+    }
 
     /**
      * User who deleted this record.
@@ -77,14 +77,14 @@ class Journey extends Model
         return $this->belongsTo(User::class, 'deleted_by');
     }
 
-     protected static function booted()
+    protected static function booted()
     {
         static::addGlobalScope(new AdminAgencyJourneyScope);
     }
-    public function tickets()
-{
-    return $this->hasManyThrough(Ticket::class, Booking::class, 'object_id', 'booking_id')
-        ->where('bookings.object_type', 'journey');
-}
 
+    public function tickets()
+    {
+        return $this->hasManyThrough(Ticket::class, Booking::class, 'object_id', 'booking_id')
+            ->where('bookings.object_type', 'journey');
+    }
 }
