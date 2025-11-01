@@ -11,13 +11,28 @@ use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Support\Facades\Auth;
 
 class ApartmentController extends RestController
 {
     public function index()
     {
-        return ApartmentResource::collection(Apartment::with('photos')->get());
+
+$user = Auth::user();
+
+$apartmentsQuery = Apartment::with('photos');
+
+if ($user->hasRole('Manager')) {
+    // Only apartments whose owner was created by this manager
+    $apartmentsQuery->whereHas('apartmentOwner', function($query) use ($user) {
+        $query->where('created_by', $user->id);
+    });
+}
+
+$apartments = $apartmentsQuery->get();
+
+return ApartmentResource::collection($apartments);
+
     }
 
      public function apartmentList(Request $request)

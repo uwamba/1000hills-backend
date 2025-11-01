@@ -10,13 +10,23 @@ use Carbon\Carbon;
 
 class JourneyController extends RestController
 {
-    public function index()
-    {
-        return JourneyResource::collection(
-            Journey::with(['bus.agency', 'bus.seatType','exchangeRate'])->latest()->get()
-        );
+   public function index()
+{
+    $user = auth()->user();
 
+    $query = Journey::with(['bus.agency', 'bus.seatType', 'exchangeRate'])
+        ->latest();
+
+    // If the logged-in user has role "Manager", filter by their agency
+    if ($user->role->name === 'Manager') {
+        $query->whereHas('bus.agency', function ($q) use ($user) {
+            $q->where('created_by', $user->id);
+        });
     }
+
+    return JourneyResource::collection($query->get());
+}
+
 
 
 
