@@ -28,7 +28,7 @@ class ApartmentController extends RestController
 
         if ($user->role === 'Manager') {
             // Only apartments whose owner was created by this manager
-            $apartmentsQuery->ownedBy($user->id);
+            $apartmentsQuery->where('created_by', $user->id);
         }
 
         $apartments = $apartmentsQuery->get();
