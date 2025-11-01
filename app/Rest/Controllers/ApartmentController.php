@@ -7,7 +7,6 @@ use App\Models\Photo;
 use App\Rest\Controller as RestController;
 use App\Rest\Resources\ApartmentResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
