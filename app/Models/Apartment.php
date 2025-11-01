@@ -67,6 +67,11 @@ class Apartment extends Model
             ->where('object_type', 'apartment');
     }
 
+    public function scopeOwnedBy($query, $userId)
+    {
+        return $query->where('created_by', $userId);
+    }
+
     public function apartmentOwner()
     {
         return $this->belongsTo(ApartmentOwner::class, 'apartment_owner_id');
