@@ -32,7 +32,7 @@ class ApartmentController extends RestController
             Log::info('Filtering apartments for Manager', [
                 'manager_id' => $user->id,
             ]);
-            $apartmentsQuery->where('created_by', $user->id);
+            $apartmentsQuery->ownedBy($user->id);
             Log::info('query after filter', [
                 'query_sql' => $apartmentsQuery->toSql(),
                 'query_bindings' => $apartmentsQuery->getBindings(),
