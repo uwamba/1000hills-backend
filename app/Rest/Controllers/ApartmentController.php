@@ -15,7 +15,14 @@ class ApartmentController extends RestController
     public function index()
     {
 
-        $user = Auth::user();
+        $user = auth()->user();
+
+        Log::info('Journey index accessed', [
+            'user_id' => $user->id ?? null,
+            'user_name' => $user->name ?? null,
+            'user_email' => $user->email ?? null,
+            'user_role' => $user->role ?? 'No role assigned',
+        ]);
 
         $apartmentsQuery = Apartment::with('photos');
 
