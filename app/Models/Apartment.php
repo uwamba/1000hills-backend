@@ -67,7 +67,7 @@ class Apartment extends Model
             ->where('object_type', 'apartment');
     }
 
-    public function apartemntOwner()
+    public function apartmentOwner()
     {
         return $this->belongsTo(ApartmentOwner::class, 'apartment_owner_id');
         // By default, Laravel will look for apartment_owner_id, so the second argument is optional
