@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('journeys', function (Blueprint $table) {
-            $table->unsignedBigInteger('created_by')->nullable()->after('status');
+            $table->unsignedBigInteger('created_by')->nullable()->after('currency');
             $table->unsignedBigInteger('updated_by')->nullable()->after('created_by');
         });
     }
