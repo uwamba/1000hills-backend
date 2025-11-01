@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Scopes\AdminApartmentScope;
-use App\Models\ApartmentOwner;
+use Illuminate\Database\Eloquent\Model;
 
 class Apartment extends Model
 {
@@ -29,6 +28,7 @@ class Apartment extends Model
         'contract',
         'view',
         'updated_by',
+        'created_by',
         'deleted_by',
         'deleted_on',
         'apartment_owner_id',
@@ -58,13 +58,15 @@ class Apartment extends Model
     public function photos()
     {
         return $this->hasMany(Photo::class, 'object_id')
-                    ->where('object_type', 'apartment');
+            ->where('object_type', 'apartment');
     }
-     public function bookings()
+
+    public function bookings()
     {
         return $this->hasMany(Booking::class, 'object_id')
             ->where('object_type', 'apartment');
     }
+
     public function apartemntOwner()
     {
         return $this->belongsTo(ApartmentOwner::class, 'apartment_owner_id');
@@ -75,14 +77,13 @@ class Apartment extends Model
     {
         static::addGlobalScope(new AdminApartmentScope);
     }
+
     public function activeBookings()
-{
-    return $this->hasMany(Booking::class, 'object_id')
-        ->where('object_type', 'apartment')
-        ->whereDate('from_date_time', '>=', now()->toDateString())
-        ->whereNull('deleted_on') ;                   
- 
-}
+    {
+        return $this->hasMany(Booking::class, 'object_id')
+            ->where('object_type', 'apartment')
+            ->whereDate('from_date_time', '>=', now()->toDateString())
+            ->whereNull('deleted_on');
 
-
+    }
 }
