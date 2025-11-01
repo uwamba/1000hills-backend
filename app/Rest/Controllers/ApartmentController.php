@@ -25,7 +25,7 @@ class ApartmentController extends RestController
             'user_role' => $user->role ?? 'No role assigned',
         ]);
 
-        $apartmentsQuery = Apartment::withoutGlobalScope(AdminApartmentScope::class)->with('photos');
+        $apartmentsQuery = Apartment::withoutGlobalScope()->with('photos');
 
         if ($user->role === 'Manager') {
             // Only apartments whose owner was created by this manager
