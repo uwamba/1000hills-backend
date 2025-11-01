@@ -19,14 +19,14 @@ class JourneyController extends RestController
         'user_id' => $user->id ?? null,
         'user_name' => $user->name ?? null,
         'user_email' => $user->email ?? null,
-        'user_role' => $user->role->name ?? 'No role assigned',
+        'user_role' => $user->role ?? 'No role assigned',
     ]);
 
     $query = Journey::with(['bus.agency', 'bus.seatType', 'exchangeRate'])
         ->latest();
 
     // If the logged-in user has role "Manager", filter by their agency
-    if ($user->role->name === 'Manager') {
+    if ($user->role === 'Manager') {
         $query->whereHas('bus.agency', function ($q) use ($user) {
             $q->where('created_by', $user->id);
         });
