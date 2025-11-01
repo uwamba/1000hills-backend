@@ -28,7 +28,7 @@ class JourneyController extends RestController
     // If the logged-in user has role "Manager", filter by their agency
     if ($user->role === 'Manager') {
         $query->whereHas('bus.agency', function ($q) use ($user) {
-            $q->where('created_by', $user->id);
+            $q->where('updated_by', $user->id);
         });
     }
 
@@ -89,6 +89,10 @@ class JourneyController extends RestController
         'bus_id' => 'required|exists:buses,id',
         'time' => 'required|date_format:H:i',
     ]);
+     $admin = auth()->user();
+
+    // Add updated_by automatically
+    $validated['updated_by'] = $admin->id;
 
     $journey = Journey::create($validated);
 
